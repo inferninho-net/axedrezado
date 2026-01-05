@@ -31,12 +31,9 @@ map.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>')
 
 
 
-const baseTerrainBackground = L.tileLayer(
-  'https://tiles.stadiamaps.com/tiles/stamen_terrain_background/{z}/{x}/{y}{r}.png',
-  {
-    maxZoom: 20,
-    attribution: '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'
-  }
+const baseHillshade = L.tileLayer(
+  'https://{s}.tiles.wmflabs.org/hillshading/{z}/{x}/{y}.png',
+  { subdomains: ['a','b','c'], maxZoom: 16, attribution: 'Wikimedia Labs | &copy; OpenStreetMap contributors' }
 );
 
 
@@ -69,7 +66,7 @@ const baseTerrainBackground = L.tileLayer(
   // 5) Controlo de layers
   const baseLayers = {
     "OpenStreetMap": baseOSM,
-    "Hillshade (Terrain Background)": baseTerrainBackground,
+    "Hillshade": baseHillshade,
     "Terreno": baseTerrain,
     "Satélite": baseSatellite
   };
