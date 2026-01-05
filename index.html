@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Axedrezado no Camiño de Santiago</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    #map { height: 98vh; margin: 0; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([41.5, -8.0], 6);
+  
+  // remove o prefixo "Leaflet ..." (onde está a bandeira)
+map.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
+
+  // 2) Base layers (só UMA deve estar ativa por defeito)
+  const baseOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  });
+
+  const baseTerrain = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    maxZoom: 17,
+    attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap (CC-BY-SA)'
+  });
+
+
+
+const baseTerrainBackground = L.tileLayer(
+  'https://tiles.stadiamaps.com/tiles/stamen_terrain_background/{z}/{x}/{y}{r}.png',
+  {
+    maxZoom: 20,
+    attribution: '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'
+  }
+);
+
+
+
+
+  const baseSatellite = L.tileLayer(
+    'https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    {
+      maxZoom: 19,
+	      opacity: 0.9,
+
+      attribution: 'Tiles &copy; Esri'
+    }
+  );
+
+  // ATIVA UMA BASE (se esqueceres isto, o mapa pode ficar “em branco”)
+  baseSatellite.addTo(map);
+
+  // 3) Renderers (Canvas para performance; SVG para tracejado garantir)
+  const canvasRenderer = L.canvas({ padding: 0.5 });
+  const svgRenderer = L.svg();
+
+  // 4) Overlays (grupos)
+  const tracksEUR = L.featureGroup().addTo(map);
+  const tracksCEL = L.featureGroup().addTo(map);
+  const tracksNO = L.featureGroup().addTo(map);
+  const tracksMAR = L.featureGroup().addTo(map);
+  const IGR      = L.featureGroup(); // para depois
+
+  // 5) Controlo de layers
+  const baseLayers = {
+    "OpenStreetMap": baseOSM,
+    "Hillshade (Terrain Background)": baseTerrainBackground,
+    "Terreno": baseTerrain,
+    "Satélite": baseSatellite
+  };
+
+  const overlays = {
+    "Camiños oficiais": tracksEUR,
+    "Camiños Marítimos": tracksMAR,
+	"Via Céltica": tracksCEL,
+    "Non oficiais": tracksNO,
+
+    "Igrejas": IGR
+  };
+
+ L.control.layers(baseLayers, overlays, { collapsed: false }).addTo(map);
+
+// Adiciona os grupos ao mapa (por defeito ligados)
+tracksCEL.addTo(map);
+tracksEUR.addTo(map);
+tracksNO.addTo(map);
+tracksMAR.addTo(map);
+IGR.addTo(map);
+
+// Forçar ordem das camadas (chama sempre que houver toggles)
+function applyLayerOrder() {
+  // mais “fundo” primeiro
+  tracksEUR.bringToFront();
+  tracksCEL.bringToFront();
+  tracksNO.bringToBack();
+  tracksMAR.bringToFront();
+
+  // pontos sempre por cima
+  IGR.bringToFront();
+}
+
+// aplica já
+applyLayerOrder();
+
+// reaplica sempre que alguém liga/desliga overlays no controlo
+map.on('overlayadd overlayremove', applyLayerOrder);
+
+
+  async function loadGeoJSON(url, group, options = {}) {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`Falha a carregar ${url}: ${r.status}`);
+    const data = await r.json();
+  const layer = L.geoJSON(data, {
+  ...(options.renderer ? {} : { renderer: canvasRenderer }),
+  ...options
+});
+    layer.addTo(group);
+    return layer;
+  }
+
+  (async () => {
+    try {
+
+// Tracks Nao Oficiais (linhas)
+await loadGeoJSON('nao-oficiais.geojson', tracksNO, {
+  style: () => ({ color: "DodgerBlue", weight: 3, opacity: 0.9 }),
+  onEachFeature: (feature, layer) => {
+    const nome = feature?.properties?.Name ?? "Track";
+    layer.on('click', (e) => {
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent(nome)
+        .openOn(map);
+    });
+  }
+});
+
+// Tracks Europa (linhas)
+await loadGeoJSON('merged-EUR_simplified.geojson', tracksEUR, {
+  style: () => ({ color: "#FF7800", weight: 3, opacity: 0.9 })
+});
+// Tracks Céltica (linhas)
+await loadGeoJSON('via-celtica.geojson', tracksCEL, {
+  style: () => ({ color: "#ee282f", weight: 3, opacity: 0.9 }),
+  onEachFeature: (feature, layer) => {
+    const nome = feature?.properties?.nome ?? "Track";
+    layer.on('click', (e) => {
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent(nome)
+        .openOn(map);
+    });
+  }
+});
+
+
+
+// Tracks Mar (linhas) - SVG para garantir tracejado
+await loadGeoJSON('merged-MAR.geojson', tracksMAR, {
+  renderer: svgRenderer,
+  style: () => ({ color: "#FF7800", weight: 3, opacity: 0.9, dashArray: "8 6" })
+});
+
+// IGR (pontos)
+const igrejaIcon = L.icon({
+  iconUrl: 'chess.png',
+  iconSize: [15, 15],
+  iconAnchor: [12, 24],
+  popupAnchor: [0, -20]
+});
+
+await loadGeoJSON('igrejas.geojson', IGR, {
+  pointToLayer: (feature, latlng) => L.marker(latlng, { icon: igrejaIcon }),
+  onEachFeature: (feature, layer) => {
+    const name = feature.properties?.name || feature.properties?.Name || feature.properties?.name || "Igreja";
+    layer.bindPopup(name);
+  }
+});
+
+
+      // Ajustar o zoom para apanhar todas as tracks carregadas
+      const all = L.featureGroup([tracksCEL, tracksEUR, tracksMAR, IGR, tracksNO]);
+      if (all.getLayers().length) {
+      //  map.fitBounds(all.getBounds(), { padding: [20, 20] });
+      }
+
+      // Exemplo de POI manual (para veres como fica)
+      // L.marker([41.1456, -8.6110]).bindPopup("Porto").addTo(IGR);
+
+    } catch (e) {
+      console.error(e);
+      alert(e.message);
+    }
+  })();
+</script>
+</body>
+</html>
