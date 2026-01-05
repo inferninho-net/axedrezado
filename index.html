@@ -141,11 +141,15 @@ await loadGeoJSON('nao-oficiais.geojson', tracksNO, {
 });
 
 // Tracks Europa (linhas)
-await loadGeoJSON('merged-EUR_simplified.geojson', tracksEUR, eurStyle);
-await loadGeoJSON('manzanal.geojson', tracksEUR, eurStyle);
 const eurStyle = {
   style: () => ({ color: "#FF7800", weight: 3, opacity: 0.9 })
-});
+};
+
+await Promise.all([
+  loadGeoJSON('merged-EUR_simplified.geojson', tracksEUR, eurStyle),
+  loadGeoJSON('manzanal.geojson', tracksEUR, eurStyle),
+]);
+
 // Tracks Céltica (linhas)
 await loadGeoJSON('via-celtica.geojson', tracksCEL, {
   style: () => ({ color: "#ee282f", weight: 3, opacity: 0.9 }),
