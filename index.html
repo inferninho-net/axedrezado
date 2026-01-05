@@ -31,9 +31,12 @@ map.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>')
 
 
 
-const baseHillshade = L.tileLayer(
-  'https://{s}.tiles.wmflabs.org/hillshading/{z}/{x}/{y}.png',
-  { subdomains: ['a','b','c'], maxZoom: 16, attribution: 'Wikimedia Labs | &copy; OpenStreetMap contributors' }
+const baseHillshadeEsri = L.tileLayer(
+  'https://services.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}',
+  {
+    maxZoom: 20,
+    attribution: 'Tiles &copy; Esri'
+  }
 );
 
 
@@ -66,7 +69,7 @@ const baseHillshade = L.tileLayer(
   // 5) Controlo de layers
   const baseLayers = {
     "OpenStreetMap": baseOSM,
-    "Hillshade": baseHillshade,
+    "Hillshade": baseHillshadeEsri,
     "Terreno": baseTerrain,
     "Satélite": baseSatellite
   };
