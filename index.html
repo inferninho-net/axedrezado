@@ -86,11 +86,11 @@ const baseHillshadeEsri = L.tileLayer(
  L.control.layers(baseLayers, overlays, { collapsed: false }).addTo(map);
 
 // Adiciona os grupos ao mapa (por defeito ligados)
-tracksCEL.addTo(map);
-tracksEUR.addTo(map);
-tracksNO.addTo(map);
-tracksMAR.addTo(map);
-IGR.addTo(map);
+ tracksCEL.addTo(map);
+ tracksEUR.addTo(map);
+ tracksNO.addTo(map);
+ tracksMAR.addTo(map);
+ IGR.addTo(map);
 
 // Forçar ordem das camadas (chama sempre que houver toggles)
 function applyLayerOrder() {
@@ -177,20 +177,34 @@ await loadGeoJSON('merged-MAR.geojson', tracksMAR, {
 });
 
 // IGR (pontos)
-const igrejaIcon = L.icon({
-  iconUrl: 'chess.png',
-  iconSize: [15, 15],
-  iconAnchor: [12, 24],
-  popupAnchor: [0, -20]
-});
+function pinIcon(color = "#7a1fa2", scale = 1) {
+  const w = 30 * scale;
+  const h = 42 * scale;
+
+  const svg = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 30 42">
+    <path d="M15 0C7.3 0 1 6.1 1 13.7c0 10.3 14 28.3 14 28.3s14-18 14-28.3C29 6.1 22.7 0 15 0z"
+          fill="${color}" />
+    <circle cx="15" cy="14" r="5.5" fill="white"/>
+  </svg>`;
+
+  return L.divIcon({
+    className: '',
+    html: svg,
+    iconSize: [w, h],
+    iconAnchor: [w / 2, h],
+    popupAnchor: [0, -h * 0.9]
+  });
+}
+
 
 await loadGeoJSON('igrejas.geojson', IGR, {
-  pointToLayer: (feature, latlng) => L.marker(latlng, { icon: igrejaIcon }),
+  pointToLayer: (feature, latlng) => L.marker(latlng, { icon: pinIcon("#7a1fa2", 0.5) }),
   onEachFeature: (feature, layer) => {
-    const name = feature.properties?.name || feature.properties?.Name || feature.properties?.name || "Igreja";
-    layer.bindPopup(name);
+    layer.bindPopup(feature?.properties?.Name ?? "Igreja");
   }
 });
+
 
 
       // Ajustar o zoom para apanhar todas as tracks carregadas
