@@ -127,7 +127,7 @@ map.on('overlayadd overlayremove', applyLayerOrder);
     try {
 
 // Tracks Nao Oficiais (linhas)
-await loadGeoJSON('nao-oficiais.geojson', tracksNO, {
+const noOpts = {
   style: () => ({ color: "DodgerBlue", weight: 3, opacity: 0.9 }),
   onEachFeature: (feature, layer) => {
     const nome = feature?.properties?.Name ?? "Track";
@@ -138,7 +138,11 @@ await loadGeoJSON('nao-oficiais.geojson', tracksNO, {
         .openOn(map);
     });
   }
-});
+};
+
+await loadGeoJSON('nao-oficiais.geojson', tracksNO, noOpts);
+await loadGeoJSON('var-inverno.geojson', tracksNO, noOpts);
+
 
 // Tracks Europa (linhas)
 const eurStyle = {
