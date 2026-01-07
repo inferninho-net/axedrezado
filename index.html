@@ -539,15 +539,20 @@ overlayControl.getContainer().classList.add('layers-overlays');
 
   // Forçar ordem das camadas (reaplica em toggles)
   function applyLayerOrder() {
-    // fundo -> topo
-    tracksEUR.bringToFront();
-    tracksCEL.bringToFront();
-    tracksMAR.bringToFront();
-    tracksNO.bringToBack();
-    IGR.bringToFront();
+
+ // primeiro o que tem de ficar no fundo
+  tracksNO.bringToBack();
+
+  // depois o resto por cima
+  tracksEUR.bringToFront();
+  tracksCEL.bringToFront();
+  tracksMAR.bringToFront();
+
+  // pontos sempre no topo
+  IGR.bringToFront();
   }
   applyLayerOrder();
-//  map.on('overlayadd overlayremove', applyLayerOrder);
+  map.on('overlayadd overlayremove', applyLayerOrder);
 
   // Loader
   async function loadGeoJSON(url, group, options = {}) {
