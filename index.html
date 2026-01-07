@@ -8,10 +8,116 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
   <style>
-    html, body { height: 100%; margin: 0; }
-    /* Em páginas WP, evita 100vh (pode engolir o resto do layout). Ajusta se quiseres. */
-    #map { height: 70vh; min-height: 360px; width: 100%; }
-    @supports (height: 70dvh) { #map { height: 70dvh; } }
+html, body { height: 100%; margin: 0; }
+/* Em páginas WP, evita 100vh (pode engolir o resto do layout). Ajusta se quiseres. */
+#map { height: 70vh; min-height: 360px; width: 100%; }
+@supports (height: 70dvh) { #map { height: 70dvh; } }
+
+/* Caixa do seletor */
+.leaflet-control-layers {
+  border: 0 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25) !important;
+  background: rgba(255,255,255,.92) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+  font: 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Botão (ícone) quando está colapsado */
+.leaflet-control-layers-toggle {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+}
+
+/* Conteúdo interno */
+.leaflet-control-layers-expanded {
+  padding: 12px 12px 10px !important;
+}
+
+/* Separador */
+.leaflet-control-layers-separator {
+  margin: 10px 0 !important;
+  opacity: .25;
+}
+
+/* Cada linha */
+.leaflet-control-layers label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 6px;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Hover */
+.leaflet-control-layers label:hover {
+  background: rgba(0,0,0,.05);
+}
+
+/* Inputs maiores */
+.leaflet-control-layers input {
+  transform: scale(1.15);
+}
+
+/* Texto */
+.leaflet-control-layers span {
+  color: #1f2937;
+}
+
+/* Scroll se muitas camadas */
+.leaflet-control-layers-list {
+  max-height: 45vh;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+/* Scrollbar (WebKit) */
+.leaflet-control-layers-list::-webkit-scrollbar { width: 8px; }
+.leaflet-control-layers-list::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,.18);
+  border-radius: 10px;
+}
+
+/* Títulos para os dois controlos */
+.layers-base.leaflet-control-layers::before,
+.layers-overlays.leaflet-control-layers::before{
+  display:block;
+  padding:10px 12px 0;
+  font-weight:700;
+  font-size:13px;
+  opacity:.85;
+}
+.layers-base.leaflet-control-layers::before { content:"Base"; }
+.layers-overlays.leaflet-control-layers::before { content:"Camadas"; }
+
+/* Alinhar horizontalmente (topright) */
+.leaflet-top.leaflet-right {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.leaflet-top.leaflet-right .leaflet-control {
+  margin: 10px 10px 0 0;
+}
+
+/* Em mobile: empilha */
+@media (max-width: 700px) {
+  .leaflet-top.leaflet-right {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+
+
+
   </style>
 </head>
 
@@ -61,10 +167,10 @@
   const IGR       = L.featureGroup().addTo(map);
 
   const baseLayers = {
+    "Satélite": baseSatellite,
     "OpenStreetMap": baseOSM,
-    "Hillshade": baseHillshadeEsri,
-    "Terreno": baseTerrain,
-    "Satélite": baseSatellite
+    "Sombreado": baseHillshadeEsri,
+    "Terreno": baseTerrain
   };
 
   const overlays = {
@@ -75,7 +181,20 @@
     "Non oficiais": tracksNO,
   };
 
-  L.control.layers(baseLayers, overlays, { collapsed: false }).addTo(map);
+// Controlos separados (clicar para abrir)
+const baseControl = L.control.layers(baseLayers, null, {
+  collapsed: true,
+  position: 'topright'
+}).addTo(map);
+
+const overlayControl = L.control.layers(null, overlays, {
+  collapsed: false,
+  position: 'topright'
+}).addTo(map);
+
+// (opcional) classes para poderes estilizar melhor em CSS
+baseControl.getContainer().classList.add('layers-base');
+overlayControl.getContainer().classList.add('layers-overlays');
 
   // Forçar ordem das camadas (reaplica em toggles)
   function applyLayerOrder() {
