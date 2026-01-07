@@ -10,7 +10,9 @@
 
 
   <style>
+  
 html, body { height: 100%; margin: 0; }
+
 /* Em páginas WP, evita 100vh (pode engolir o resto do layout). Ajusta se quiseres. */
 #map { height: 70vh; min-height: 360px; width: 100%; }
 @supports (height: 70dvh) { #map { height: 70dvh; } }
@@ -27,222 +29,7 @@ html, body { height: 100%; margin: 0; }
   color: #1f2937;
 }
 
-
-/* Caixa do seletor */
-.leaflet-control-layers {
-  border: 0 !important;
-  border-radius: 14px !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,.25) !important;
-  background: rgba(255,255,255,.92) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  overflow: hidden;
-  font: 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-}
-
-/* Botão (ícone) quando está colapsado */
-.leaflet-control-layers-toggle {
-  width: 42px !important;
-  height: 42px !important;
-  border-radius: 12px !important;
-}
-
-/* Conteúdo interno */
-.leaflet-control-layers-expanded {
-  max-width: 260px;
-}
-
-}
-
-/* Separador */
-.leaflet-control-layers-separator {
-  margin: 10px 0 !important;
-  opacity: .25;
-}
-
-/* Cada linha */
-.leaflet-control-layers label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 6px;
-  border-radius: 10px;
-  cursor: pointer;
-  user-select: none;
-}
-
-/* Hover */
-.leaflet-control-layers label:hover {
-  background: rgba(0,0,0,.05);
-}
-
-/* Inputs maiores */
-.leaflet-control-layers input {
-  transform: scale(1.15);
-}
-
-/* Texto */
-.leaflet-control-layers span {
-  color: #1f2937;
-}
-
-/* Scroll se muitas camadas */
-.leaflet-control-layers-list {
-  max-height: 45vh;
-  overflow: auto;
-  padding-right: 6px;
-}
-
-/* Scrollbar (WebKit) */
-.leaflet-control-layers-list::-webkit-scrollbar { width: 8px; }
-.leaflet-control-layers-list::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,.18);
-  border-radius: 10px;
-}
-
-
-/* Alinhar horizontalmente (topright) */
-.leaflet-top.leaflet-right {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.leaflet-top.leaflet-right .leaflet-control {
-  margin: 10px 10px 0 0;
-  float: none !important;
-  clear: none !important;
-
-}
-
-/* Em mobile: empilha */
-@media (max-width: 700px) {
-  .leaflet-top.leaflet-right {
-    flex-direction: column;
-    gap: 0;
-  }
-}
-
-/* Mantém o botão do Layers visível mesmo quando está expandido (Leaflet esconde-o por defeito) */
-.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
-  display: block !important;
-  cursor: pointer;
-}
-
-/* Dá-lhe aspeto “clicável” */
-.leaflet-control-layers-toggle {
-  cursor: pointer;
-}
-
-/* No canto top-right, queremos flex “a sério” */
-.leaflet-top.leaflet-right {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-/* Leaflet usa floats/clear para empilhar. Em flex isso só atrapalha. */
-.leaflet-top.leaflet-right .leaflet-control {
-  float: none !important;
-  clear: none !important;
-  margin: 10px 10px 0 0;
-  position: relative;
-  z-index: 1000;
-}
-
-/* Mantém o ícone visível mesmo quando expandido (para poderes fechar) */
-.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
-  display: block !important;
-}
-
-/* Garante que o toggle é clicável */
-.leaflet-control-layers-toggle {
-  cursor: pointer;
-  pointer-events: auto;
-}
-
-/* Mantém o toggle visível mesmo expandido (já tinhas isto) */
-.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
-  display: flex !important;
-}
-
-/* Tornar o toggle um botão com ícone + texto */
-.layers-base .leaflet-control-layers-toggle,
-.layers-overlays .leaflet-control-layers-toggle {
-  width: auto !important;
-  height: 42px !important;
-  display: flex !important;
-  align-items: center;
-  gap: 10px;
-  padding: 0 12px 0 12px;
-  border-radius: 12px !important;
-
-  /* remove o ícone default do Leaflet */
-  background-image: none !important;
-
-  /* aspecto */
-  background: rgba(255,255,255,.92) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgba(0,0,0,.20) !important;
-
-  font: 700 13px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  color: #1f2937;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-/* Ícone (antes do texto) */
-.layers-base .leaflet-control-layers-toggle::before,
-.layers-overlays .leaflet-control-layers-toggle::before {
-  content: "";
-  width: 18px;
-  height: 18px;
-  display: inline-block;
-  background-size: 18px 18px;
-  background-repeat: no-repeat;
-  background-position: center;
-  opacity: .95;
-}
-
-/* Texto (na mesma linha) */
-.layers-base .leaflet-control-layers-toggle::after {
-  content: "Base";
-}
-.layers-overlays .leaflet-control-layers-toggle::after {
-  content: "Camadas";
-}
-
-/* Ícone do Basemap (tipo mapa) */
-.layers-base .leaflet-control-layers-toggle::before {
-  background-image: url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
-<path fill='%231f2937' d='M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 4 9 6.5V4zm0 4.2 6-2.5v11.1L9 17V8.2z'/>\
-</svg>");
-}
-
-/* Ícone do Overlay (tipo camadas) */
-.layers-overlays .leaflet-control-layers-toggle::before {
-  background-image: url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
-<path fill='%231f2937' d='M12 3 2 8l10 5 10-5-10-5zm0 7L2 5v3l10 5 10-5V5l-10 5zm0 6L2 11v3l10 5 10-5v-3l-10 5z'/>\
-</svg>");
-}
-
-/* Hover bonito */
-.layers-base .leaflet-control-layers-toggle:hover,
-.layers-overlays .leaflet-control-layers-toggle:hover {
-  background: rgba(255,255,255,.98) !important;
-}
-
-/* Se estás a usar flex no canto direito, neutraliza floats do Leaflet */
-.leaflet-top.leaflet-right .leaflet-control {
-  float: none !important;
-  clear: none !important;
-}
-
+/* Legenda */
 .legend{
   background: rgba(255,255,255,.92);
   padding:10px 12px;
@@ -257,6 +44,332 @@ html, body { height: 100%; margin: 0; }
 .legend .no{ border-color:DodgerBlue; }
 .legend .mar{ border-color:#FF7800; border-top-style:dashed; }
 .legend .pin{ width:10px; height:10px; border-radius:50%; background:#7a1fa2; }
+
+/* =========================
+   LAYERS CONTROL: caixa
+   ========================= */
+.leaflet-control-layers {
+  border: 0 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25) !important;
+  background: rgba(255,255,255,.92) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+  font: 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Largura do painel quando aberto */
+.leaflet-control-layers-expanded { max-width: 260px; }
+
+/* Separador */
+.leaflet-control-layers-separator {
+  margin: 10px 0 !important;
+  opacity: .25;
+}
+
+/* Lista com scroll */
+.leaflet-control-layers-list {
+  max-height: 45vh;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+/* Scrollbar (WebKit) */
+.leaflet-control-layers-list::-webkit-scrollbar { width: 8px; }
+.leaflet-control-layers-list::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,.18);
+  border-radius: 10px;
+}
+
+/* Linhas */
+.leaflet-control-layers label {
+  position: relative;
+  display: block;
+  padding: 6px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.leaflet-control-layers label:hover { background: rgba(0,0,0,.05); }
+
+/* =========================
+   CONTROLOS NO CANTO: lado a lado
+   ========================= */
+.leaflet-top.leaflet-right {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+}
+.leaflet-top.leaflet-right .leaflet-control {
+  margin: 10px 10px 0 0;
+  float: none !important;
+  clear: none !important;
+  position: relative;
+  z-index: 1000;
+}
+
+/* Em mobile: empilha */
+@media (max-width: 700px) {
+  .leaflet-top.leaflet-right {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+/* =========================
+   TOGGLES “Base” / “Camadas”
+   ========================= */
+
+/* Mantém o toggle visível mesmo quando expandido */
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+  display: flex !important;
+}
+
+/* Tornar o toggle um botão com ícone + texto */
+.layers-base .leaflet-control-layers-toggle,
+.layers-overlays .leaflet-control-layers-toggle {
+  width: auto !important;
+  height: 42px !important;
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  border-radius: 12px !important;
+
+  background-image: none !important;
+  background: rgba(255,255,255,.92) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.20) !important;
+
+  font: 700 13px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #1f2937;
+  cursor: pointer;
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+/* Ícone antes do texto */
+.layers-base .leaflet-control-layers-toggle::before,
+.layers-overlays .leaflet-control-layers-toggle::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  background-size: 18px 18px;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: .95;
+}
+
+/* Texto na mesma linha */
+.layers-base .leaflet-control-layers-toggle::after { content: "Base"; }
+.layers-overlays .leaflet-control-layers-toggle::after { content: "Camadas"; }
+
+/* Ícones (modo claro) */
+.layers-base .leaflet-control-layers-toggle::before {
+  background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
+<path fill='%231f2937' d='M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 4 9 6.5V4zm0 4.2 6-2.5v11.1L9 17V8.2z'/>\
+</svg>");
+}
+.layers-overlays .leaflet-control-layers-toggle::before {
+  background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
+<path fill='%231f2937' d='M12 3 2 8l10 5 10-5-10-5zm0 7L2 5v3l10 5 10-5V5l-10 5zm0 6L2 11v3l10 5 10-5v-3l-10 5z'/>\
+</svg>");
+}
+
+/* Hover / focus */
+.layers-base .leaflet-control-layers-toggle:hover,
+.layers-overlays .leaflet-control-layers-toggle:hover {
+  background: rgba(255,255,255,1) !important;
+}
+.layers-base .leaflet-control-layers-toggle:focus-visible,
+.layers-overlays .leaflet-control-layers-toggle:focus-visible {
+  outline: 2px solid rgba(31,41,55,.35);
+  outline-offset: 2px;
+}
+
+/* =========================
+   DARK MODE: só controlos
+   ========================= */
+@media (prefers-color-scheme: dark) {
+  .leaflet-control-layers,
+  .leaflet-bar,
+  .loading,
+  .church-search,
+  .legend {
+    background: rgba(20, 20, 20, .85) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,.45) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+  }
+
+  .leaflet-control,
+  .leaflet-control-layers span,
+  .leaflet-control-layers label,
+  .church-search input,
+  .loading,
+  .legend {
+    color: #e5e7eb !important;
+  }
+
+  .leaflet-bar a,
+  .leaflet-bar a:hover {
+    background: transparent !important;
+    color: #e5e7eb !important;
+    border-bottom: 1px solid rgba(255,255,255,.12) !important;
+  }
+  .leaflet-bar a:last-child { border-bottom: 0 !important; }
+  .leaflet-bar a:hover { background: rgba(255,255,255,.08) !important; }
+
+  .leaflet-control-layers-separator { opacity: .35; }
+  .leaflet-control-layers label:hover { background: rgba(255,255,255,.08) !important; }
+
+  /* Botões Base/Camadas */
+  .layers-base .leaflet-control-layers-toggle,
+  .layers-overlays .leaflet-control-layers-toggle {
+    color: #e5e7eb !important;
+    background: rgba(20, 20, 20, .85) !important;
+  }
+
+  /* Ícones claros no dark mode */
+  .layers-base .leaflet-control-layers-toggle::before {
+    background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
+<path fill='%23e5e7eb' d='M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 4 9 6.5V4zm0 4.2 6-2.5v11.1L9 17V8.2z'/>\
+</svg>") !important;
+  }
+  .layers-overlays .leaflet-control-layers-toggle::before {
+    background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
+<path fill='%23e5e7eb' d='M12 3 2 8l10 5 10-5-10-5zm0 7L2 5v3l10 5 10-5V5l-10 5zm0 6L2 11v3l10 5 10-5v-3l-10 5z'/>\
+</svg>") !important;
+  }
+
+  /* Hover/focus com mais contraste */
+  .layers-base .leaflet-control-layers-toggle:hover,
+  .layers-overlays .leaflet-control-layers-toggle:hover {
+    background: rgba(255,255,255,.14) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,.55) !important;
+  }
+  .layers-base .leaflet-control-layers-toggle:focus-visible,
+  .layers-overlays .leaflet-control-layers-toggle:focus-visible {
+    outline: 2px solid rgba(229,231,235,.55);
+    outline-offset: 2px;
+  }
+
+  /* LocateControl: clarear ícones que venham como imagem */
+  .leaflet-control-locate a .leaflet-control-locate-location-arrow,
+  .leaflet-control-locate a .leaflet-control-locate-spinner,
+  .leaflet-control-locate a .leaflet-control-locate-alert {
+    filter: invert(1) brightness(1.1);
+  }
+}
+/* ==========================================================
+   LAYERS: checks/radios minimalistas (sem caixa, sem azul)
+   - input fica invisível mas funcional
+   - ✓ / • aparecem SEMPRE no mesmo “slot” à esquerda
+   ========================================================== */
+
+/* Os itens ficam numa linha limpinha */
+.leaflet-control-layers label{
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 6px 8px !important;
+  border-radius: 10px !important;
+  cursor: pointer;
+  user-select: none;
+}
+.leaflet-control-layers label:hover{
+  background: rgba(0,0,0,.05);
+}
+
+/* Esconde o input nativo (de forma robusta) mas mantém-no clicável via label */
+.leaflet-control-layers input[type="checkbox"],
+.leaflet-control-layers input[type="radio"]{
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  accent-color: transparent !important;
+}
+
+/* O texto do Leaflet vem num span. Nós usamos o ::before como “slot” fixo */
+.leaflet-control-layers label > span{
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding-left: 0 !important;   /* mata qualquer padding antigo */
+  color: #1f2937;
+}
+
+/* Slot do marcador: sempre ocupa espaço, mesmo desmarcado */
+.leaflet-control-layers label > span::before{
+  content: "" !important;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-weight: 900;
+  color: transparent;           /* invisível quando não marcado */
+}
+
+/* Checkbox marcado: ✓ escuro */
+.leaflet-control-layers input[type="checkbox"]:checked + span::before{
+  content: "✓" !important;
+  color: #111827 !important;
+  font-size: 16px;
+}
+
+/* Radio marcado: • escuro */
+.leaflet-control-layers input[type="radio"]:checked + span::before{
+  content: "•" !important;
+  color: #111827 !important;
+  font-size: 20px;
+  transform: translateY(-1px);
+}
+
+/* Focus teclado */
+.leaflet-control-layers input:focus-visible + span{
+  outline: 2px solid rgba(17,24,39,.20);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Dark mode: texto + marcadores claros */
+@media (prefers-color-scheme: dark){
+  .leaflet-control-layers label:hover{
+    background: rgba(255,255,255,.08);
+  }
+  .leaflet-control-layers label > span{
+    color: #e5e7eb !important;
+  }
+  .leaflet-control-layers input[type="checkbox"]:checked + span::before,
+  .leaflet-control-layers input[type="radio"]:checked + span::before{
+    color: #e5e7eb !important;
+  }
+  .leaflet-control-layers input:focus-visible + span{
+    outline: 2px solid rgba(229,231,235,.25);
+  }
+}
+
+
+
 
 
   </style>
@@ -275,10 +388,15 @@ html, body { height: 100%; margin: 0; }
   map.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
 
   // Localização
-  L.control.locate({
+const locate = L.control.locate({
   position: 'topleft',
-  setView: 'once',         // centra uma vez
-  keepCurrentZoomLevel: true
+  flyTo: true,                 // anima o “voo” (Leaflet 1.0+)
+  keepCurrentZoomLevel: false, // permite que ele faça zoom
+  initialZoomLevel: 14,        // força zoom ao ativar
+  locateOptions: {
+    enableHighAccuracy: true,
+    maxZoom: 16                // limite máximo quando ajusta a vista
+  }
 }).addTo(map);
 
   // Base layers
@@ -360,6 +478,8 @@ const ClickLayersControl = L.Control.Layers.extend({
   }
 });
 
+// Modo escuro
+
 
 // Controlos separados (clicar para abrir)
 const baseControl = new ClickLayersControl(baseLayers, null, {
@@ -372,8 +492,6 @@ const overlayControl = new ClickLayersControl(null, overlays, {
   position: 'topright'
 }).addTo(map);
 
-baseControl.getContainer().classList.add('layers-base');
-overlayControl.getContainer().classList.add('layers-overlays');
 
 // Overlays aberto por defeito, mas fechável manualmente no ícone
 overlayControl.expand();
@@ -413,9 +531,6 @@ function makeLayersControlClickOnly(ctrl) {
 makeLayersControlClickOnly(baseControl);
 makeLayersControlClickOnly(overlayControl);
 
-// overlays aberto por defeito, mas fechável manualmente no ícone
-overlayControl.expand();
-baseControl.collapse();
 
 
 // (opcional) classes para poderes estilizar melhor em CSS
