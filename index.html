@@ -7,6 +7,7 @@
   <title>Axedrezado no Camiño de Santiago</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-locatecontrol/0.85.1/L.Control.Locate.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@3.0.2/Control.FullScreen.css">
 
 
   <style>
@@ -380,9 +381,15 @@ html, body { height: 100%; margin: 0; }
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-locatecontrol/0.85.1/L.Control.Locate.min.js"></script>
+<script src="https://unpkg.com/leaflet.fullscreen@3.0.2/Control.FullScreen.js"></script>
+
 
 <script>
   const map = L.map('map', { preferCanvas: true }).setView([41.5, -8.0], 6);
+// fullscreen
+L.control.fullscreen({
+  position: 'topleft'   // combina com o botão de localização
+}).addTo(map);
 
   // Remove o prefixo "Leaflet ..." (onde estava a bandeira)
   map.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
