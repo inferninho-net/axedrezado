@@ -2,23 +2,30 @@
 <html>
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Axedrezado no Camiño de Santiago</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
   <style>
-    #map { height: 98vh; margin: 0; }
+    html, body { height: 100%; margin: 0; }
+    /* Em páginas WP, evita 100vh (pode engolir o resto do layout). Ajusta se quiseres. */
+    #map { height: 70vh; min-height: 360px; width: 100%; }
+    @supports (height: 70dvh) { #map { height: 70dvh; } }
   </style>
 </head>
+
 <body>
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  const map = L.map('map').setView([41.5, -8.0], 6);
-  
-  // remove o prefixo "Leaflet ..." (onde está a bandeira)
-map.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
+  const map = L.map('map', { preferCanvas: true }).setView([41.5, -8.0], 6);
 
-  // 2) Base layers (só UMA deve estar ativa por defeito)
+  // Remove o prefixo "Leaflet ..." (onde estava a bandeira)
+  map.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
+
+  // Base layers
   const baseOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors'
@@ -29,44 +36,30 @@ map.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>')
     attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap (CC-BY-SA)'
   });
 
-
-
-const baseHillshadeEsri = L.tileLayer(
-  'https://services.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}',
-  {
-    maxZoom: 20,
-    attribution: 'Tiles &copy; Esri'
-  }
-);
-
-
-
+  const baseHillshadeEsri = L.tileLayer(
+    'https://services.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}',
+    { maxZoom: 20, attribution: 'Tiles &copy; Esri' }
+  );
 
   const baseSatellite = L.tileLayer(
     'https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    {
-      maxZoom: 19,
-	      opacity: 0.9,
-
-      attribution: 'Tiles &copy; Esri'
-    }
+    { maxZoom: 19, opacity: 0.9, attribution: 'Tiles &copy; Esri' }
   );
 
-  // ATIVA UMA BASE (se esqueceres isto, o mapa pode ficar “em branco”)
+  // Ativa uma base
   baseSatellite.addTo(map);
 
-  // 3) Renderers (Canvas para performance; SVG para tracejado garantir)
+  // Renderers
   const canvasRenderer = L.canvas({ padding: 0.5 });
   const svgRenderer = L.svg();
 
-  // 4) Overlays (grupos)
+  // Overlays (criados já ligados, sem redundâncias)
   const tracksEUR = L.featureGroup().addTo(map);
   const tracksCEL = L.featureGroup().addTo(map);
-  const tracksNO = L.featureGroup().addTo(map);
+  const tracksNO  = L.featureGroup().addTo(map);
   const tracksMAR = L.featureGroup().addTo(map);
-  const IGR      = L.featureGroup(); // para depois
+  const IGR       = L.featureGroup().addTo(map);
 
-  // 5) Controlo de layers
   const baseLayers = {
     "OpenStreetMap": baseOSM,
     "Hillshade": baseHillshadeEsri,
@@ -75,146 +68,123 @@ const baseHillshadeEsri = L.tileLayer(
   };
 
   const overlays = {
+    "Igrexas con axedrezado": IGR,
     "Camiños oficiais": tracksEUR,
-    "Camiños Marítimos": tracksMAR,
-	"Via Céltica": tracksCEL,
+    "Camiños marítimos": tracksMAR,
+    "Via Céltica": tracksCEL,
     "Non oficiais": tracksNO,
-
-    "Igrejas": IGR
   };
 
- L.control.layers(baseLayers, overlays, { collapsed: false }).addTo(map);
+  L.control.layers(baseLayers, overlays, { collapsed: false }).addTo(map);
 
-// Adiciona os grupos ao mapa (por defeito ligados)
- tracksCEL.addTo(map);
- tracksEUR.addTo(map);
- tracksNO.addTo(map);
- tracksMAR.addTo(map);
- IGR.addTo(map);
+  // Forçar ordem das camadas (reaplica em toggles)
+  function applyLayerOrder() {
+    // fundo -> topo
+    tracksEUR.bringToFront();
+    tracksCEL.bringToFront();
+    tracksMAR.bringToFront();
+    tracksNO.bringToBack();
+    IGR.bringToFront();
+  }
+  applyLayerOrder();
+  map.on('overlayadd overlayremove', applyLayerOrder);
 
-// Forçar ordem das camadas (chama sempre que houver toggles)
-function applyLayerOrder() {
-  // mais “fundo” primeiro
-  tracksEUR.bringToFront();
-  tracksCEL.bringToFront();
-  tracksNO.bringToBack();
-  tracksMAR.bringToFront();
-
-  // pontos sempre por cima
-  IGR.bringToFront();
-}
-
-// aplica já
-applyLayerOrder();
-
-// reaplica sempre que alguém liga/desliga overlays no controlo
-map.on('overlayadd overlayremove', applyLayerOrder);
-
-
+  // Loader
   async function loadGeoJSON(url, group, options = {}) {
-    const r = await fetch(url);
+    // caminhos relativos (bom para WP e GitHub Pages)
+    const r = await fetch(`./${url}`, { cache: "no-cache" });
     if (!r.ok) throw new Error(`Falha a carregar ${url}: ${r.status}`);
     const data = await r.json();
-  const layer = L.geoJSON(data, {
-  ...(options.renderer ? {} : { renderer: canvasRenderer }),
-  ...options
-});
+
+    const layer = L.geoJSON(data, {
+      ...(options.renderer ? {} : { renderer: canvasRenderer }),
+      ...options
+    });
+
     layer.addTo(group);
     return layer;
   }
 
+  // Pin icon (SVG) com scale real
+  function pinIcon(color = "#7a1fa2", scale = 1) {
+    const w = 30 * scale;
+    const h = 42 * scale;
+
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 30 42">
+        <path d="M15 0C7.3 0 1 6.1 1 13.7c0 10.3 14 28.3 14 28.3s14-18 14-28.3C29 6.1 22.7 0 15 0z"
+              fill="${color}" />
+        <circle cx="15" cy="14" r="5.5" fill="white"/>
+      </svg>`;
+
+    return L.divIcon({
+      className: '',
+      html: svg,
+      iconSize: [w, h],
+      iconAnchor: [w / 2, h],
+      popupAnchor: [0, -h * 0.9]
+    });
+  }
+
+  // Popups no ponto clicado (para linhas)
+  function linePopupHandler(feature, layer) {
+    const nome =
+      feature?.properties?.name ??
+      feature?.properties?.Name ??
+      feature?.properties?.nome ??
+      "Track";
+
+    layer.on('click', (e) => {
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent(nome)
+        .openOn(map);
+    });
+  }
+
   (async () => {
     try {
+      // Non oficiais
+      const noOpts = {
+        style: () => ({ color: "DodgerBlue", weight: 3, opacity: 0.9 }),
+        onEachFeature: linePopupHandler
+      };
+      await loadGeoJSON('nao-oficiais.geojson', tracksNO, noOpts);
+      await loadGeoJSON('var-inverno.geojson', tracksNO, noOpts);
 
-// Tracks Nao Oficiais (linhas)
-const noOpts = {
-  style: () => ({ color: "DodgerBlue", weight: 3, opacity: 0.9 }),
-  onEachFeature: (feature, layer) => {
-    const nome = feature?.properties?.Name ?? "Track";
-    layer.on('click', (e) => {
-      L.popup()
-        .setLatLng(e.latlng)
-        .setContent(nome)
-        .openOn(map);
-    });
-  }
-};
+      // Oficiais Europa (dois ficheiros na mesma camada)
+      const eurStyle = { style: () => ({ color: "#FF7800", weight: 3, opacity: 0.9 }) };
+      await Promise.all([
+        loadGeoJSON('merged-EUR_simplified.geojson', tracksEUR, eurStyle),
+        loadGeoJSON('manzanal.geojson', tracksEUR, eurStyle),
+      ]);
 
-await loadGeoJSON('nao-oficiais.geojson', tracksNO, noOpts);
-await loadGeoJSON('var-inverno.geojson', tracksNO, noOpts);
+      // Via Céltica
+      await loadGeoJSON('via-celtica.geojson', tracksCEL, {
+        style: () => ({ color: "#ee282f", weight: 3, opacity: 0.9 }),
+        onEachFeature: linePopupHandler
+      });
 
+      // Marítimos (SVG para garantir tracejado)
+      await loadGeoJSON('merged-MAR.geojson', tracksMAR, {
+        renderer: svgRenderer,
+        style: () => ({ color: "#FF7800", weight: 3, opacity: 0.9, dashArray: "8 6" }),
+        onEachFeature: linePopupHandler
+      });
 
-// Tracks Europa (linhas)
-const eurStyle = {
-  style: () => ({ color: "#FF7800", weight: 3, opacity: 0.9 })
-};
+      // Igrejas (pontos)
+      await loadGeoJSON('igrejas.geojson', IGR, {
+        pointToLayer: (feature, latlng) => L.marker(latlng, { icon: pinIcon("#7a1fa2", 0.7) }),
+        onEachFeature: (feature, layer) => {
+          const nome = feature?.properties?.name ?? feature?.properties?.Name ?? "Igreja";
+          layer.bindPopup(nome);
+        }
+      });
 
-await Promise.all([
-  loadGeoJSON('merged-EUR_simplified.geojson', tracksEUR, eurStyle),
-  loadGeoJSON('manzanal.geojson', tracksEUR, eurStyle),
-]);
+      applyLayerOrder();
 
-// Tracks Céltica (linhas)
-await loadGeoJSON('via-celtica.geojson', tracksCEL, {
-  style: () => ({ color: "#ee282f", weight: 3, opacity: 0.9 }),
-  onEachFeature: (feature, layer) => {
-    const nome = feature?.properties?.nome ?? "Track";
-    layer.on('click', (e) => {
-      L.popup()
-        .setLatLng(e.latlng)
-        .setContent(nome)
-        .openOn(map);
-    });
-  }
-});
-
-
-
-// Tracks Mar (linhas) - SVG para garantir tracejado
-await loadGeoJSON('merged-MAR.geojson', tracksMAR, {
-  renderer: svgRenderer,
-  style: () => ({ color: "#FF7800", weight: 3, opacity: 0.9, dashArray: "8 6" })
-});
-
-// IGR (pontos)
-function pinIcon(color = "#7a1fa2", scale = 1) {
-  const w = 30 * scale;
-  const h = 42 * scale;
-
-  const svg = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 30 42">
-    <path d="M15 0C7.3 0 1 6.1 1 13.7c0 10.3 14 28.3 14 28.3s14-18 14-28.3C29 6.1 22.7 0 15 0z"
-          fill="${color}" />
-    <circle cx="15" cy="14" r="5.5" fill="white"/>
-  </svg>`;
-
-  return L.divIcon({
-    className: '',
-    html: svg,
-    iconSize: [w, h],
-    iconAnchor: [w / 2, h],
-    popupAnchor: [0, -h * 0.9]
-  });
-}
-
-
-await loadGeoJSON('igrejas.geojson', IGR, {
-  pointToLayer: (feature, latlng) => L.marker(latlng, { icon: pinIcon("#7a1fa2", 0.5) }),
-  onEachFeature: (feature, layer) => {
-    layer.bindPopup(feature?.properties?.Name ?? "Igreja");
-  }
-});
-
-
-
-      // Ajustar o zoom para apanhar todas as tracks carregadas
-      const all = L.featureGroup([tracksCEL, tracksEUR, tracksMAR, IGR, tracksNO]);
-      if (all.getLayers().length) {
-      //  map.fitBounds(all.getBounds(), { padding: [20, 20] });
-      }
-
-      // Exemplo de POI manual (para veres como fica)
-      // L.marker([41.1456, -8.6110]).bindPopup("Porto").addTo(IGR);
+      // Se estiver embutido (WP tabs/iframes/containers), isto evita mapa “cortado”
+      setTimeout(() => map.invalidateSize(), 200);
 
     } catch (e) {
       console.error(e);
