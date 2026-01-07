@@ -34,7 +34,9 @@ html, body { height: 100%; margin: 0; }
 
 /* Conteúdo interno */
 .leaflet-control-layers-expanded {
-  padding: 12px 12px 10px !important;
+  max-width: 260px;
+}
+
 }
 
 /* Separador */
@@ -83,17 +85,6 @@ html, body { height: 100%; margin: 0; }
   border-radius: 10px;
 }
 
-/* Títulos para os dois controlos */
-.layers-base.leaflet-control-layers::before,
-.layers-overlays.leaflet-control-layers::before{
-  display:block;
-  padding:10px 12px 0;
-  font-weight:700;
-  font-size:13px;
-  opacity:.85;
-}
-.layers-base.leaflet-control-layers::before { content:"Base"; }
-.layers-overlays.leaflet-control-layers::before { content:"Camadas"; }
 
 /* Alinhar horizontalmente (topright) */
 .leaflet-top.leaflet-right {
@@ -105,6 +96,9 @@ html, body { height: 100%; margin: 0; }
 
 .leaflet-top.leaflet-right .leaflet-control {
   margin: 10px 10px 0 0;
+  float: none !important;
+  clear: none !important;
+
 }
 
 /* Em mobile: empilha */
@@ -115,7 +109,124 @@ html, body { height: 100%; margin: 0; }
   }
 }
 
+/* Mantém o botão do Layers visível mesmo quando está expandido (Leaflet esconde-o por defeito) */
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+  display: block !important;
+  cursor: pointer;
+}
 
+/* Dá-lhe aspeto “clicável” */
+.leaflet-control-layers-toggle {
+  cursor: pointer;
+}
+
+/* No canto top-right, queremos flex “a sério” */
+.leaflet-top.leaflet-right {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* Leaflet usa floats/clear para empilhar. Em flex isso só atrapalha. */
+.leaflet-top.leaflet-right .leaflet-control {
+  float: none !important;
+  clear: none !important;
+  margin: 10px 10px 0 0;
+  position: relative;
+  z-index: 1000;
+}
+
+/* Mantém o ícone visível mesmo quando expandido (para poderes fechar) */
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+  display: block !important;
+}
+
+/* Garante que o toggle é clicável */
+.leaflet-control-layers-toggle {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Mantém o toggle visível mesmo expandido (já tinhas isto) */
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+  display: flex !important;
+}
+
+/* Tornar o toggle um botão com ícone + texto */
+.layers-base .leaflet-control-layers-toggle,
+.layers-overlays .leaflet-control-layers-toggle {
+  width: auto !important;
+  height: 42px !important;
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px 0 12px;
+  border-radius: 12px !important;
+
+  /* remove o ícone default do Leaflet */
+  background-image: none !important;
+
+  /* aspecto */
+  background: rgba(255,255,255,.92) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.20) !important;
+
+  font: 700 13px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #1f2937;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* Ícone (antes do texto) */
+.layers-base .leaflet-control-layers-toggle::before,
+.layers-overlays .leaflet-control-layers-toggle::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  background-size: 18px 18px;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: .95;
+}
+
+/* Texto (na mesma linha) */
+.layers-base .leaflet-control-layers-toggle::after {
+  content: "Base";
+}
+.layers-overlays .leaflet-control-layers-toggle::after {
+  content: "Camadas";
+}
+
+/* Ícone do Basemap (tipo mapa) */
+.layers-base .leaflet-control-layers-toggle::before {
+  background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
+<path fill='%231f2937' d='M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 4 9 6.5V4zm0 4.2 6-2.5v11.1L9 17V8.2z'/>\
+</svg>");
+}
+
+/* Ícone do Overlay (tipo camadas) */
+.layers-overlays .leaflet-control-layers-toggle::before {
+  background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
+<path fill='%231f2937' d='M12 3 2 8l10 5 10-5-10-5zm0 7L2 5v3l10 5 10-5V5l-10 5zm0 6L2 11v3l10 5 10-5v-3l-10 5z'/>\
+</svg>");
+}
+
+/* Hover bonito */
+.layers-base .leaflet-control-layers-toggle:hover,
+.layers-overlays .leaflet-control-layers-toggle:hover {
+  background: rgba(255,255,255,.98) !important;
+}
+
+/* Se estás a usar flex no canto direito, neutraliza floats do Leaflet */
+.leaflet-top.leaflet-right .leaflet-control {
+  float: none !important;
+  clear: none !important;
+}
 
 
   </style>
@@ -181,16 +292,90 @@ html, body { height: 100%; margin: 0; }
     "Non oficiais": tracksNO,
   };
 
+const ClickLayersControl = L.Control.Layers.extend({
+  onAdd: function (map) {
+    const container = L.Control.Layers.prototype.onAdd.call(this, map);
+
+    // Desliga hover (Leaflet abre/fecha por mouseover/mouseout em desktop)
+    L.DomEvent.off(container, 'mouseover', this.expand, this);
+    L.DomEvent.off(container, 'mouseout',  this.collapse, this);
+
+    // O link/ícone do controlo (Leaflet guarda em _layersLink)
+    const link = this._layersLink;
+
+    // Garante que clicar no ícone não mexe no mapa
+    L.DomEvent.on(link, 'click', L.DomEvent.stop);
+
+    // Alternar abrir/fechar a clicar no ícone
+    L.DomEvent.on(link, 'click', () => {
+      if (container.classList.contains('leaflet-control-layers-expanded')) {
+        this.collapse();
+      } else {
+        this.expand();
+      }
+    });
+
+    return container;
+  }
+});
+
+
 // Controlos separados (clicar para abrir)
-const baseControl = L.control.layers(baseLayers, null, {
+const baseControl = new ClickLayersControl(baseLayers, null, {
   collapsed: true,
   position: 'topright'
 }).addTo(map);
 
-const overlayControl = L.control.layers(null, overlays, {
-  collapsed: false,
+const overlayControl = new ClickLayersControl(null, overlays, {
+  collapsed: true,
   position: 'topright'
 }).addTo(map);
+
+baseControl.getContainer().classList.add('layers-base');
+overlayControl.getContainer().classList.add('layers-overlays');
+
+// Overlays aberto por defeito, mas fechável manualmente no ícone
+overlayControl.expand();
+baseControl.collapse();
+
+function makeLayersControlClickOnly(ctrl) {
+  const container = ctrl.getContainer();
+  const toggle = container.querySelector('.leaflet-control-layers-toggle');
+
+  // não deixar o controlo mexer no mapa
+  L.DomEvent.disableClickPropagation(container);
+  L.DomEvent.disableScrollPropagation(container);
+
+  // 1) Mata hover (captura antes do Leaflet)
+  const killHover = (e) => {
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+  };
+  ['mouseover', 'mouseout', 'mouseenter', 'mouseleave'].forEach(ev => {
+    container.addEventListener(ev, killHover, true); // capture=true
+  });
+
+  // 2) Toggle por clique no ícone (captura para ganhar ao Leaflet)
+  toggle.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation(); // impede o click "expand-only" do Leaflet
+
+    if (container.classList.contains('leaflet-control-layers-expanded')) {
+      ctrl.collapse();
+    } else {
+      ctrl.expand();
+    }
+  }, true); // capture=true
+}
+
+makeLayersControlClickOnly(baseControl);
+makeLayersControlClickOnly(overlayControl);
+
+// overlays aberto por defeito, mas fechável manualmente no ícone
+overlayControl.expand();
+baseControl.collapse();
+
 
 // (opcional) classes para poderes estilizar melhor em CSS
 baseControl.getContainer().classList.add('layers-base');
@@ -206,7 +391,7 @@ overlayControl.getContainer().classList.add('layers-overlays');
     IGR.bringToFront();
   }
   applyLayerOrder();
-  map.on('overlayadd overlayremove', applyLayerOrder);
+//  map.on('overlayadd overlayremove', applyLayerOrder);
 
   // Loader
   async function loadGeoJSON(url, group, options = {}) {
