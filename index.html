@@ -45,6 +45,8 @@ html, body { height: 100%; margin: 0; }
 .legend .no{ border-color:DodgerBlue; }
 .legend .mar{ border-color:#FF7800; border-top-style:dashed; }
 .legend .pin{ width:10px; height:10px; border-radius:50%; background:#7a1fa2; }
+.legend .rom-main { border-color:#7c3aed; }
+.legend .rom-sec  { border-color:#10b981; border-top-style:dashed; }
 
 /* =========================
    LAYERS CONTROL: caixa
@@ -439,6 +441,7 @@ const locate = L.control.locate({
   const tracksCEL = L.featureGroup().addTo(map);
   const tracksNO  = L.featureGroup().addTo(map);
   const tracksMAR = L.featureGroup().addTo(map);
+  const tracksROM = L.featureGroup().addTo(map);
   const IGR       = L.featureGroup().addTo(map);
 
   const baseLayers = {
@@ -454,6 +457,7 @@ const locate = L.control.locate({
     "Camiños marítimos": tracksMAR,
     "Via Céltica": tracksCEL,
     "Non oficiais": tracksNO,
+    "Vias romanas": tracksROM,
   };
 
 
@@ -554,6 +558,7 @@ overlayControl.getContainer().classList.add('layers-overlays');
   tracksEUR.bringToFront();
   tracksCEL.bringToFront();
   tracksMAR.bringToFront();
+  tracksROM.bringToFront();
 
   // pontos sempre no topo
   IGR.bringToFront();
@@ -586,6 +591,8 @@ legend.onAdd = () => {
     <div><span class="lg line mar"></span> Marítimos</div>
     <div><span class="lg line cel"></span> Via Céltica</div>
     <div><span class="lg line no"></span> Non oficiais</div>
+	<div><span class="lg line rom-main"></span> Vias Romanas Principais</div>
+    <div><span class="lg line rom-sec"></span> Vias Romanas Secundarias</div>
   `;
   return div;
 };
@@ -683,6 +690,53 @@ loading.addTo(map);
         layer.bindPopup(nome);
       }
     });
+	
+	// Vias Romanas
+	await loadGeoJSON('itiner-e.geojson', tracksROM, {
+  renderer: svgRenderer,
+  style: (feature) => {
+    const t = feature?.properties?.type ?? "";
+
+    if (t === "Main Road") {
+      return {
+        color: "#7c3aed",   // violeta
+        weight: 3,
+        opacity: 0.9
+      };
+    }
+
+    if (t === "Secondary Road") {
+      return {
+        color: "#10b981",   // verde
+        weight: 2,
+        opacity: 0.9,
+        dashArray: "6 4"
+      };
+    }
+
+    return {
+      color: "#6b7280",     // fallback cinzento
+      weight: 2,
+      opacity: 0.8
+    };
+  },
+  onEachFeature: (feature, layer) => {
+    const nome =
+      feature?.properties?.name ??
+      feature?.properties?.Name ??
+      feature?.properties?.nome ??
+      "Via romana";
+
+    const tipo = feature?.properties?.type ?? "Sem tipo";
+
+    layer.on('click', (e) => {
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent(`<strong>${nome}</strong><br>${tipo}`)
+        .openOn(map);
+    });
+  }
+});
     applyLayerOrder();
 
     // Se estiver embutido (WP tabs/iframes/containers), isto evita mapa “cortado”
