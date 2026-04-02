@@ -645,6 +645,8 @@ loading.addTo(map);
     };
     await loadGeoJSON('nao-oficiais.geojson', tracksNO, noOpts);
     await loadGeoJSON('var-inverno.geojson', tracksNO, noOpts);
+	await loadGeoJSON('mondonhedo.geojson', tracksNO, noOpts);
+
 
     // Oficiais Europa (dois ficheiros na mesma camada)
     const eurStyle = { style: () => ({ color: "#FF7800", weight: 3, opacity: 0.9 }) };
@@ -674,7 +676,13 @@ loading.addTo(map);
         layer.bindPopup(nome);
       }
     });
-
+    await loadGeoJSON('igrejas-2.geojson', IGR, {
+      pointToLayer: (feature, latlng) => L.marker(latlng, { icon: pinIcon("#ad54d6", 0.7) }),
+      onEachFeature: (feature, layer) => {
+        const nome = feature?.properties?.name ?? feature?.properties?.Name ?? "Igreja";
+        layer.bindPopup(nome);
+      }
+    });
     applyLayerOrder();
 
     // Se estiver embutido (WP tabs/iframes/containers), isto evita mapa “cortado”
