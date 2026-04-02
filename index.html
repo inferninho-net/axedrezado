@@ -555,13 +555,13 @@ overlayControl.getContainer().classList.add('layers-overlays');
 
  // primeiro o que tem de ficar no fundo
   tracksNO.bringToBack();
+  tracksROMMain.bringToBack();
+  tracksROMSec.bringToBack();
 
   // depois o resto por cima
   tracksEUR.bringToFront();
   tracksCEL.bringToFront();
   tracksMAR.bringToFront();
-  tracksROMMain.bringToBack();
-  tracksROMSec.bringToBack();
   // pontos sempre no topo
   IGR.bringToFront();
   }
