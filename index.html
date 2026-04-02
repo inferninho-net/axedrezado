@@ -554,12 +554,12 @@ overlayControl.getContainer().classList.add('layers-overlays');
   function applyLayerOrder() {
 
  // primeiro o que tem de ficar no fundo
-  tracksNO.bringToBack();
+tracksROMSec.bringToBack();
 
   // depois o resto por cima
-  
+    
   tracksROMMain.bringToFront();
-  tracksROMSec.bringToFront();
+  tracksNO.bringToFront();  
   tracksEUR.bringToFront();
   tracksCEL.bringToFront();
   tracksMAR.bringToFront();
@@ -567,8 +567,7 @@ overlayControl.getContainer().classList.add('layers-overlays');
   IGR.bringToFront();
   }
   applyLayerOrder();
-  map.on('overlayadd overlayremove', applyLayerOrder);
-
+map.on('overlayadd overlayremove', () => requestAnimationFrame(applyLayerOrder));
   // Loader
   async function loadGeoJSON(url, group, options = {}) {
     // caminhos relativos (bom para WP e GitHub Pages)
