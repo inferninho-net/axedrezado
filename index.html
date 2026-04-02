@@ -696,7 +696,6 @@ loading.addTo(map);
 	// Vias Romanas
 // Vias Romanas Principais
 await loadGeoJSON('itiner-e.geojson', tracksROMMain, {
-  renderer: svgRenderer,
   filter: (feature) => feature?.properties?.type === "Main Road",
   style: () => ({
     color: "#ffef15",   // amarelo
@@ -721,7 +720,6 @@ await loadGeoJSON('itiner-e.geojson', tracksROMMain, {
 
 // Vias Romanas Secundarias
 await loadGeoJSON('itiner-e.geojson', tracksROMSec, {
-  renderer: svgRenderer,
   filter: (feature) => feature?.properties?.type === "Secondary Road",
   style: () => ({
     color: "#10b981",   // verde
