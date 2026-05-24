@@ -52,6 +52,7 @@ A análise xeorreferenciada demostra o potencial das ferramentas dixitais (SIX, 
 ## 6. Bibliografía
 - Federación Española de Asociaciones de Amigos del Camino de Santiago. https://www.caminosantiago.org/cpperegrino/caminos/nuestroscaminos.asp
 - Instituto Geográfico Nacional. https://centrodedescargas.cnig.es/CentroDescargas/catalogo.do?Serie=CSANT
+- Brughmans, T., de Soto, P., Pažout, A. and Bjerregaard Vahlstrup, P. (2024) Itiner-e: the digital atlas of ancient roads. https://itiner-e.org
 - Cornide, J. (1785). Ensayo de una descripción física y económica de Galicia. Madrid: Imprenta Real.
 - Fontán, D. (1834). Carta Xeométrica de Galicia. Santiago de Compostela: Real Sociedade Económica.
 - Ferreira Priegue, E. M. (1993). Los caminos medievales de Galicia. Santiago de Compostela: Consello da Cultura Galega.
