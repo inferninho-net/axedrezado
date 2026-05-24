@@ -686,7 +686,7 @@ loading.addTo(map);
 //      }
 //    });
     await loadGeoJSON('igrejas-3.geojson', IGR, {
-      pointToLayer: (feature, latlng) => L.marker(latlng, { icon: pinIcon("#ad54d6", 0.7) }),
+      pointToLayer: (feature, latlng) => L.marker(latlng, { icon: pinIcon("#7a1fa2", 0.7) }),
       onEachFeature: (feature, layer) => {
         const nome = feature?.properties?.name ?? feature?.properties?.Name ?? "Igreja";
         layer.bindPopup(nome);
