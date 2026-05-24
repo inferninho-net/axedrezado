@@ -50,6 +50,8 @@ O estudo confirma a presenza dun patrón territorial coherente na distribución 
 
 A análise xeorreferenciada demostra o potencial das ferramentas dixitais (SIX, bases de datos patrimoniais) para reinterpretar elementos artísticos e relixiosos dende unha perspectiva territorial. Propónse a difusión deste estudo para que entidades e asociacións que se adican o estudio e recuperación de itinerarios Xacobeos consideren a presenza do axedrezado xaqués, como un fenómeno estético compartido, sistema transnacional de sinalización cristiá medieval e proba irrefutabel de un Camiño Medieval Xacobeo seguro.
 ## 6. Bibliografía
+- Federación Española de Asociaciones de Amigos del Camino de Santiago. https://www.caminosantiago.org/cpperegrino/caminos/nuestroscaminos.asp
+- Instituto Geográfico Nacional. https://centrodedescargas.cnig.es/CentroDescargas/catalogo.do?Serie=CSANT
 - Cornide, J. (1785). Ensayo de una descripción física y económica de Galicia. Madrid: Imprenta Real.
 - Fontán, D. (1834). Carta Xeométrica de Galicia. Santiago de Compostela: Real Sociedade Económica.
 - Ferreira Priegue, E. M. (1993). Los caminos medievales de Galicia. Santiago de Compostela: Consello da Cultura Galega.
