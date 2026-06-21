@@ -1592,7 +1592,6 @@
 { "type": "Feature", "properties": { "Name": "Iglesia de Santa Mariña de San Román" }, "geometry": { "type": "Point", "coordinates": [ -8.6617022, 42.973972, 0.0 ] } },
 { "type": "Feature", "properties": { "Name": "Iglesia de San Millán" }, "geometry": { "type": "Point", "coordinates": [ -1.0927231, 42.4614627, 0.0 ] } },
 { "type": "Feature", "properties": { "Name": "Iglesia del Salvador" }, "geometry": { "type": "Point", "coordinates": [ -1.0228486, 42.3697144, 0.0 ] } },
-{ "type": "Feature", "properties": { "Name": "Iglesia-Museo de San Esteban" }, "geometry": { "type": "Point", "coordinates": [ -1.0228755, 42.3679991, 0.0 ] } },
 { "type": "Feature", "properties": { "Name": "Catedral (San Domnión de Salona)" }, "geometry": { "type": "Point", "coordinates": [ 16.4404805, 43.5081034, 0.0 ] } },
 { "type": "Feature", "properties": { "Name": "Eglise Saint-Pierre" }, "geometry": { "type": "Point", "coordinates": [ -0.2212, 45.55231, 0.0 ] } },
 { "type": "Feature", "properties": { "Name": "Église souterraine Saint-Jean de Aubeterre-sur-Dronne" }, "geometry": { "type": "Point", "coordinates": [ 0.171361, 45.2722472, 0.0 ] } },
