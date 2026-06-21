@@ -70,4 +70,4 @@ O projeto está publicado em GitHub Pages.
 ## 8. Licenza
 
 ## 9. Mais información
-[Asociación Costavales](viaceltica.com)
+[Asociación Costavales](http://www.viaceltica.com)
