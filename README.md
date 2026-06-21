@@ -68,3 +68,6 @@ O projeto está publicado em GitHub Pages.
 
 [Ver mapa](https://inferninho-net.github.io/axedrezado/index.html)
 ## 8. Licenza
+
+## 9. Mais información
+[Asociación Costavales](viaceltica.com)
