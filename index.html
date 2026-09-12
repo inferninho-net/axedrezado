@@ -1,760 +1,678 @@
 <!doctype html>
-<html>
+<html lang="gl">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Axedrezado no Camiño de Santiago</title>
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-locatecontrol/0.85.1/L.Control.Locate.min.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@3.0.2/Control.FullScreen.css">
-
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@3.0.2/Control.FullScreen.css">
 
   <style>
-  
-html, body { height: 100%; margin: 0; }
+    html, body { height: 100%; margin: 0; }
 
-/* Em páginas WP, evita 100vh (pode engolir o resto do layout). Ajusta se quiseres. */
-#map { height: 70vh; min-height: 360px; width: 100%; }
-@supports (height: 70dvh) { #map { height: 70dvh; } }
+    /* Em páginas WP, evita 100vh (pode engolir o resto do layout). */
+    #map { height: 70vh; min-height: 360px; width: 100%; }
+    @supports (height: 70dvh) { #map { height: 70dvh; } }
 
-/* A carregar */
-.loading {
-  background: rgba(255,255,255,.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding: 8px 10px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.20);
-  font: 13px/1 system-ui, sans-serif;
-  color: #1f2937;
-}
+    /* A carregar */
+    .loading {
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 8px 10px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.20);
+      font: 13px/1 system-ui, sans-serif;
+      color: #1f2937;
+    }
 
-/* Legenda */
-.legend{
-  background: rgba(255,255,255,.92);
-  padding:10px 12px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.20);
-  font: 13px/1.3 system-ui, sans-serif;
-}
-.legend .lg{ display:inline-block; vertical-align:middle; margin-right:8px; }
-.legend .line{ width:26px; height:0; border-top:3px solid; }
-.legend .eur{ border-color:#FF7800; }
-.legend .cel{ border-color:#ee282f; }
-.legend .no{ border-color:DodgerBlue; }
-.legend .mar{ border-color:#FF7800; border-top-style:dashed; }
-.legend .pin{ width:10px; height:10px; border-radius:50%; background:#7a1fa2; }
-.legend .rom-main { border-color:#ffef15; }
-.legend .rom-sec  { border-color:#10b981; border-top-style:dashed; }
+    /* Legenda */
+    .legend {
+      background: rgba(255,255,255,.92);
+      padding: 10px 12px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.20);
+      font: 13px/1.3 system-ui, sans-serif;
+    }
+    .legend .lg {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    .legend .line { width: 26px; height: 0; border-top: 3px solid; }
+    .legend .eur { border-color: #FF7800; }
+    .legend .cel { border-color: #ee282f; }
+    .legend .no { border-color: DodgerBlue; }
+    .legend .mar { border-color: #FF7800; border-top-style: dashed; }
+    .legend .pin { width: 10px; height: 10px; border-radius: 50%; background: #7a1fa2; }
+    .legend .rom-main { border-color: #ffef15; }
+    .legend .rom-sec { border-color: #10b981; border-top-style: dashed; }
 
-/* =========================
-   LAYERS CONTROL: caixa
-   ========================= */
-.leaflet-control-layers {
-  border: 0 !important;
-  border-radius: 14px !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,.25) !important;
-  background: rgba(255,255,255,.92) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  overflow: hidden;
-  font: 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-}
+    /* Caixa dos controlos de camadas */
+    .leaflet-control-layers {
+      border: 0 !important;
+      border-radius: 14px !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25) !important;
+      background: rgba(255,255,255,.92) !important;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      overflow: hidden;
+      font: 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    .leaflet-control-layers-expanded { max-width: 260px; }
+    .leaflet-control-layers-separator { margin: 10px 0 !important; opacity: .25; }
+    .leaflet-control-layers-list {
+      max-height: 45vh;
+      overflow: auto;
+      padding-right: 6px;
+    }
+    .leaflet-control-layers-list::-webkit-scrollbar { width: 8px; }
+    .leaflet-control-layers-list::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,.18);
+      border-radius: 10px;
+    }
 
-/* Largura do painel quando aberto */
-.leaflet-control-layers-expanded { max-width: 260px; }
+    /* Controlos no canto superior direito, lado a lado */
+    .leaflet-top.leaflet-right {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .leaflet-top.leaflet-right .leaflet-control {
+      margin: 10px 10px 0 0;
+      float: none !important;
+      clear: none !important;
+      position: relative;
+      z-index: 1000;
+    }
+    @media (max-width: 700px) {
+      .leaflet-top.leaflet-right { flex-direction: column; gap: 0; }
+    }
 
-/* Separador */
-.leaflet-control-layers-separator {
-  margin: 10px 0 !important;
-  opacity: .25;
-}
+    /* Toggles Base / Camadas */
+    .leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+      display: flex !important;
+    }
+    .layers-base .leaflet-control-layers-toggle,
+    .layers-overlays .leaflet-control-layers-toggle {
+      width: auto !important;
+      height: 42px !important;
+      display: flex !important;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      border-radius: 12px !important;
+      background-image: none !important;
+      background: rgba(255,255,255,.92) !important;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.20) !important;
+      font: 700 13px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: #1f2937;
+      cursor: pointer;
+      text-decoration: none;
+      pointer-events: auto;
+    }
+    .layers-base .leaflet-control-layers-toggle::before,
+    .layers-overlays .leaflet-control-layers-toggle::before {
+      content: "";
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      background-size: 18px 18px;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: .95;
+    }
+    .layers-base .leaflet-control-layers-toggle::after { content: "Base"; }
+    .layers-overlays .leaflet-control-layers-toggle::after { content: "Camadas"; }
+    .layers-base .leaflet-control-layers-toggle::before {
+      background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%231f2937' d='M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 4 9 6.5V4zm0 4.2 6-2.5v11.1L9 17V8.2z'/%3E%3C/svg%3E");
+    }
+    .layers-overlays .leaflet-control-layers-toggle::before {
+      background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%231f2937' d='M12 3 2 8l10 5 10-5-10-5zm0 7L2 5v3l10 5 10-5V5l-10 5zm0 6L2 11v3l10 5 10-5v-3l-10 5z'/%3E%3C/svg%3E");
+    }
+    .layers-base .leaflet-control-layers-toggle:hover,
+    .layers-overlays .leaflet-control-layers-toggle:hover {
+      background: rgba(255,255,255,1) !important;
+    }
+    .layers-base .leaflet-control-layers-toggle:focus-visible,
+    .layers-overlays .leaflet-control-layers-toggle:focus-visible {
+      outline: 2px solid rgba(31,41,55,.35);
+      outline-offset: 2px;
+    }
 
-/* Lista com scroll */
-.leaflet-control-layers-list {
-  max-height: 45vh;
-  overflow: auto;
-  padding-right: 6px;
-}
+    /* Checks e radios minimalistas */
+    .leaflet-control-layers label {
+      position: relative;
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      padding: 6px 8px !important;
+      border-radius: 10px !important;
+      cursor: pointer;
+      user-select: none;
+    }
+    .leaflet-control-layers label:hover { background: rgba(0,0,0,.05); }
+    .leaflet-control-layers input[type="checkbox"],
+    .leaflet-control-layers input[type="radio"] {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      margin: -1px !important;
+      padding: 0 !important;
+      border: 0 !important;
+      overflow: hidden !important;
+      white-space: nowrap !important;
+      clip: rect(0 0 0 0) !important;
+      clip-path: inset(50%) !important;
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      accent-color: transparent !important;
+    }
+    .leaflet-control-layers label > span {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      padding-left: 0 !important;
+      color: #1f2937;
+    }
+    .leaflet-control-layers label > span::before {
+      content: "" !important;
+      flex: 0 0 16px;
+      width: 16px;
+      height: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      font-weight: 900;
+      color: transparent;
+    }
+    .leaflet-control-layers input[type="checkbox"]:checked + span::before {
+      content: "✓" !important;
+      color: #111827 !important;
+      font-size: 16px;
+    }
+    .leaflet-control-layers input[type="radio"]:checked + span::before {
+      content: "•" !important;
+      color: #111827 !important;
+      font-size: 20px;
+      transform: translateY(-1px);
+    }
+    .leaflet-control-layers input:focus-visible + span {
+      outline: 2px solid rgba(17,24,39,.20);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
 
-/* Scrollbar (WebKit) */
-.leaflet-control-layers-list::-webkit-scrollbar { width: 8px; }
-.leaflet-control-layers-list::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,.18);
-  border-radius: 10px;
-}
-
-/* Linhas */
-.leaflet-control-layers label {
-  position: relative;
-  display: block;
-  padding: 6px 8px;
-  border-radius: 10px;
-  cursor: pointer;
-  user-select: none;
-}
-.leaflet-control-layers label:hover { background: rgba(0,0,0,.05); }
-
-/* =========================
-   CONTROLOS NO CANTO: lado a lado
-   ========================= */
-.leaflet-top.leaflet-right {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 10px;
-}
-.leaflet-top.leaflet-right .leaflet-control {
-  margin: 10px 10px 0 0;
-  float: none !important;
-  clear: none !important;
-  position: relative;
-  z-index: 1000;
-}
-
-/* Em mobile: empilha */
-@media (max-width: 700px) {
-  .leaflet-top.leaflet-right {
-    flex-direction: column;
-    gap: 0;
-  }
-}
-
-/* =========================
-   TOGGLES “Base” / “Camadas”
-   ========================= */
-
-/* Mantém o toggle visível mesmo quando expandido */
-.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
-  display: flex !important;
-}
-
-/* Tornar o toggle um botão com ícone + texto */
-.layers-base .leaflet-control-layers-toggle,
-.layers-overlays .leaflet-control-layers-toggle {
-  width: auto !important;
-  height: 42px !important;
-  display: flex !important;
-  align-items: center;
-  gap: 10px;
-  padding: 0 12px;
-  border-radius: 12px !important;
-
-  background-image: none !important;
-  background: rgba(255,255,255,.92) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgba(0,0,0,.20) !important;
-
-  font: 700 13px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  color: #1f2937;
-  cursor: pointer;
-  text-decoration: none;
-  pointer-events: auto;
-}
-
-/* Ícone antes do texto */
-.layers-base .leaflet-control-layers-toggle::before,
-.layers-overlays .leaflet-control-layers-toggle::before {
-  content: "";
-  width: 18px;
-  height: 18px;
-  display: inline-block;
-  background-size: 18px 18px;
-  background-repeat: no-repeat;
-  background-position: center;
-  opacity: .95;
-}
-
-/* Texto na mesma linha */
-.layers-base .leaflet-control-layers-toggle::after { content: "Base"; }
-.layers-overlays .leaflet-control-layers-toggle::after { content: "Camadas"; }
-
-/* Ícones (modo claro) */
-.layers-base .leaflet-control-layers-toggle::before {
-  background-image: url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
-<path fill='%231f2937' d='M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 4 9 6.5V4zm0 4.2 6-2.5v11.1L9 17V8.2z'/>\
-</svg>");
-}
-.layers-overlays .leaflet-control-layers-toggle::before {
-  background-image: url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
-<path fill='%231f2937' d='M12 3 2 8l10 5 10-5-10-5zm0 7L2 5v3l10 5 10-5V5l-10 5zm0 6L2 11v3l10 5 10-5v-3l-10 5z'/>\
-</svg>");
-}
-
-/* Hover / focus */
-.layers-base .leaflet-control-layers-toggle:hover,
-.layers-overlays .leaflet-control-layers-toggle:hover {
-  background: rgba(255,255,255,1) !important;
-}
-.layers-base .leaflet-control-layers-toggle:focus-visible,
-.layers-overlays .leaflet-control-layers-toggle:focus-visible {
-  outline: 2px solid rgba(31,41,55,.35);
-  outline-offset: 2px;
-}
-
-/* =========================
-   DARK MODE: só controlos
-   ========================= */
-@media (prefers-color-scheme: dark) {
-  .leaflet-control-layers,
-  .leaflet-bar,
-  .loading,
-  .church-search,
-  .legend {
-    background: rgba(20, 20, 20, .85) !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,.45) !important;
-    border: 1px solid rgba(255,255,255,.12) !important;
-  }
-
-  .leaflet-control,
-  .leaflet-control-layers span,
-  .leaflet-control-layers label,
-  .church-search input,
-  .loading,
-  .legend {
-    color: #e5e7eb !important;
-  }
-
-  .leaflet-bar a,
-  .leaflet-bar a:hover {
-    background: transparent !important;
-    color: #e5e7eb !important;
-    border-bottom: 1px solid rgba(255,255,255,.12) !important;
-  }
-  .leaflet-bar a:last-child { border-bottom: 0 !important; }
-  .leaflet-bar a:hover { background: rgba(255,255,255,.08) !important; }
-
-  .leaflet-control-layers-separator { opacity: .35; }
-  .leaflet-control-layers label:hover { background: rgba(255,255,255,.08) !important; }
-
-  /* Botões Base/Camadas */
-  .layers-base .leaflet-control-layers-toggle,
-  .layers-overlays .leaflet-control-layers-toggle {
-    color: #e5e7eb !important;
-    background: rgba(20, 20, 20, .85) !important;
-  }
-
-  /* Ícones claros no dark mode */
-  .layers-base .leaflet-control-layers-toggle::before {
-    background-image: url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
-<path fill='%23e5e7eb' d='M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 4 9 6.5V4zm0 4.2 6-2.5v11.1L9 17V8.2z'/>\
-</svg>") !important;
-  }
-  .layers-overlays .leaflet-control-layers-toggle::before {
-    background-image: url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
-<path fill='%23e5e7eb' d='M12 3 2 8l10 5 10-5-10-5zm0 7L2 5v3l10 5 10-5V5l-10 5zm0 6L2 11v3l10 5 10-5v-3l-10 5z'/>\
-</svg>") !important;
-  }
-
-  /* Hover/focus com mais contraste */
-  .layers-base .leaflet-control-layers-toggle:hover,
-  .layers-overlays .leaflet-control-layers-toggle:hover {
-    background: rgba(255,255,255,.14) !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,.55) !important;
-  }
-  .layers-base .leaflet-control-layers-toggle:focus-visible,
-  .layers-overlays .leaflet-control-layers-toggle:focus-visible {
-    outline: 2px solid rgba(229,231,235,.55);
-    outline-offset: 2px;
-  }
-
-  /* LocateControl: clarear ícones que venham como imagem */
-  .leaflet-control-locate a .leaflet-control-locate-location-arrow,
-  .leaflet-control-locate a .leaflet-control-locate-spinner,
-  .leaflet-control-locate a .leaflet-control-locate-alert {
-    filter: invert(1) brightness(1.1);
-  }
-}
-/* ==========================================================
-   LAYERS: checks/radios minimalistas (sem caixa, sem azul)
-   - input fica invisível mas funcional
-   - ✓ / • aparecem SEMPRE no mesmo “slot” à esquerda
-   ========================================================== */
-
-/* Os itens ficam numa linha limpinha */
-.leaflet-control-layers label{
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-  padding: 6px 8px !important;
-  border-radius: 10px !important;
-  cursor: pointer;
-  user-select: none;
-}
-.leaflet-control-layers label:hover{
-  background: rgba(0,0,0,.05);
-}
-
-/* Esconde o input nativo (de forma robusta) mas mantém-no clicável via label */
-.leaflet-control-layers input[type="checkbox"],
-.leaflet-control-layers input[type="radio"]{
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  margin: -1px !important;
-  padding: 0 !important;
-  border: 0 !important;
-  overflow: hidden !important;
-  white-space: nowrap !important;
-  clip: rect(0 0 0 0) !important;
-  clip-path: inset(50%) !important;
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  accent-color: transparent !important;
-}
-
-/* O texto do Leaflet vem num span. Nós usamos o ::before como “slot” fixo */
-.leaflet-control-layers label > span{
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  padding-left: 0 !important;   /* mata qualquer padding antigo */
-  color: #1f2937;
-}
-
-/* Slot do marcador: sempre ocupa espaço, mesmo desmarcado */
-.leaflet-control-layers label > span::before{
-  content: "" !important;
-  flex: 0 0 16px;
-  width: 16px;
-  height: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  font-weight: 900;
-  color: transparent;           /* invisível quando não marcado */
-}
-
-/* Checkbox marcado: ✓ escuro */
-.leaflet-control-layers input[type="checkbox"]:checked + span::before{
-  content: "✓" !important;
-  color: #111827 !important;
-  font-size: 16px;
-}
-
-/* Radio marcado: • escuro */
-.leaflet-control-layers input[type="radio"]:checked + span::before{
-  content: "•" !important;
-  color: #111827 !important;
-  font-size: 20px;
-  transform: translateY(-1px);
-}
-
-/* Focus teclado */
-.leaflet-control-layers input:focus-visible + span{
-  outline: 2px solid rgba(17,24,39,.20);
-  outline-offset: 2px;
-  border-radius: 8px;
-}
-
-/* Dark mode: texto + marcadores claros */
-@media (prefers-color-scheme: dark){
-  .leaflet-control-layers label:hover{
-    background: rgba(255,255,255,.08);
-  }
-  .leaflet-control-layers label > span{
-    color: #e5e7eb !important;
-  }
-  .leaflet-control-layers input[type="checkbox"]:checked + span::before,
-  .leaflet-control-layers input[type="radio"]:checked + span::before{
-    color: #e5e7eb !important;
-  }
-  .leaflet-control-layers input:focus-visible + span{
-    outline: 2px solid rgba(229,231,235,.25);
-  }
-}
-
-
-
-
-
+    /* Dark mode: apenas controlos */
+    @media (prefers-color-scheme: dark) {
+      .leaflet-control-layers,
+      .leaflet-bar,
+      .loading,
+      .church-search,
+      .legend {
+        background: rgba(20,20,20,.85) !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,.45) !important;
+        border: 1px solid rgba(255,255,255,.12) !important;
+      }
+      .leaflet-control,
+      .leaflet-control-layers span,
+      .leaflet-control-layers label,
+      .church-search input,
+      .loading,
+      .legend {
+        color: #e5e7eb !important;
+      }
+      .leaflet-bar a,
+      .leaflet-bar a:hover {
+        background: transparent !important;
+        color: #e5e7eb !important;
+        border-bottom: 1px solid rgba(255,255,255,.12) !important;
+      }
+      .leaflet-bar a:last-child { border-bottom: 0 !important; }
+      .leaflet-bar a:hover { background: rgba(255,255,255,.08) !important; }
+      .leaflet-control-layers-separator { opacity: .35; }
+      .leaflet-control-layers label:hover { background: rgba(255,255,255,.08) !important; }
+      .layers-base .leaflet-control-layers-toggle,
+      .layers-overlays .leaflet-control-layers-toggle {
+        color: #e5e7eb !important;
+        background: rgba(20,20,20,.85) !important;
+      }
+      .layers-base .leaflet-control-layers-toggle::before {
+        background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23e5e7eb' d='M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 4 9 6.5V4zm0 4.2 6-2.5v11.1L9 17V8.2z'/%3E%3C/svg%3E") !important;
+      }
+      .layers-overlays .leaflet-control-layers-toggle::before {
+        background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23e5e7eb' d='M12 3 2 8l10 5 10-5-10-5zm0 7L2 5v3l10 5 10-5V5l-10 5zm0 6L2 11v3l10 5 10-5v-3l-10 5z'/%3E%3C/svg%3E") !important;
+      }
+      .layers-base .leaflet-control-layers-toggle:hover,
+      .layers-overlays .leaflet-control-layers-toggle:hover {
+        background: rgba(255,255,255,.14) !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,.55) !important;
+      }
+      .layers-base .leaflet-control-layers-toggle:focus-visible,
+      .layers-overlays .leaflet-control-layers-toggle:focus-visible {
+        outline: 2px solid rgba(229,231,235,.55);
+        outline-offset: 2px;
+      }
+      .leaflet-control-locate a .leaflet-control-locate-location-arrow,
+      .leaflet-control-locate a .leaflet-control-locate-spinner,
+      .leaflet-control-locate a .leaflet-control-locate-alert {
+        filter: invert(1) brightness(1.1);
+      }
+      .leaflet-control-layers label > span { color: #e5e7eb !important; }
+      .leaflet-control-layers input[type="checkbox"]:checked + span::before,
+      .leaflet-control-layers input[type="radio"]:checked + span::before {
+        color: #e5e7eb !important;
+      }
+      .leaflet-control-layers input:focus-visible + span {
+        outline: 2px solid rgba(229,231,235,.25);
+      }
+    }
   </style>
 </head>
 
 <body>
-<div id="map"></div>
+  <div id="map"></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-locatecontrol/0.85.1/L.Control.Locate.min.js"></script>
-<script src="https://unpkg.com/leaflet.fullscreen@3.0.2/Control.FullScreen.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-locatecontrol/0.85.1/L.Control.Locate.min.js"></script>
+  <script src="https://unpkg.com/leaflet.fullscreen@3.0.2/Control.FullScreen.js"></script>
 
+  <script>
+    const map = L.map('map', { preferCanvas: true }).setView([41.5, -8.0], 6);
 
-<script>
-  const map = L.map('map', { preferCanvas: true }).setView([41.5, -8.0], 6);
-// fullscreen
-L.control.fullscreen({
-  position: 'topleft'   // combina com o botão de localização
-}).addTo(map);
+    L.control.fullscreen({ position: 'topleft' }).addTo(map);
 
-  // Remove o prefixo "Leaflet ..." (onde estava a bandeira)
-  map.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
+    map.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
 
-  // Localização
-const locate = L.control.locate({
-  position: 'topleft',
-  flyTo: true,                 // anima o “voo” (Leaflet 1.0+)
-  keepCurrentZoomLevel: false, // permite que ele faça zoom
-  initialZoomLevel: 14,        // força zoom ao ativar
-  locateOptions: {
-    enableHighAccuracy: true,
-    maxZoom: 16                // limite máximo quando ajusta a vista
-  }
-}).addTo(map);
-
-  // Base layers
-  const baseOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors'
-  });
-
-  const baseTerrain = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-    maxZoom: 17,
-    attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap (CC-BY-SA)'
-  });
-
-  const baseHillshadeEsri = L.tileLayer(
-    'https://services.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}',
-    { maxZoom: 20, attribution: 'Tiles &copy; Esri' }
-  );
-
-  const baseSatellite = L.tileLayer(
-    'https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    { maxZoom: 19, opacity: 0.9, attribution: 'Tiles &copy; Esri' }
-  );
-
-  // Ativa uma base
-  baseSatellite.addTo(map);
-
-  // Renderers
-  const canvasRenderer = L.canvas({ padding: 0.5 });
-  const svgRenderer = L.svg();
-
-  // Overlays (criados já ligados, sem redundâncias)
-  const tracksEUR = L.featureGroup().addTo(map);
-  const tracksCEL = L.featureGroup().addTo(map);
-  const tracksNO  = L.featureGroup().addTo(map);
-  const tracksMAR = L.featureGroup().addTo(map);
-  const tracksROMMain = L.featureGroup().addTo(map);
-  const tracksROMSec = L.featureGroup().addTo(map);
-  const IGR       = L.featureGroup().addTo(map);
-
-  const baseLayers = {
-    "Satélite": baseSatellite,
-    "OpenStreetMap": baseOSM,
-    "Sombreado": baseHillshadeEsri,
-    "Terreno": baseTerrain
-  };
-
-  const overlays = {
-    "Igrexas con axedrezado": IGR,
-    "Camiños oficiais": tracksEUR,
-    "Camiños marítimos": tracksMAR,
-    "Via Céltica": tracksCEL,
-    "Non oficiais": tracksNO,
-    "Vias Romanas Principais": tracksROMMain,
-	"Vias Romanas Secundarias": tracksROMSec,
-  };
-
-
-
-const ClickLayersControl = L.Control.Layers.extend({
-  onAdd: function (map) {
-    const container = L.Control.Layers.prototype.onAdd.call(this, map);
-
-    // Desliga hover (Leaflet abre/fecha por mouseover/mouseout em desktop)
-    L.DomEvent.off(container, 'mouseover', this.expand, this);
-    L.DomEvent.off(container, 'mouseout',  this.collapse, this);
-
-    // O link/ícone do controlo (Leaflet guarda em _layersLink)
-    const link = this._layersLink;
-
-    // Garante que clicar no ícone não mexe no mapa
-    L.DomEvent.on(link, 'click', L.DomEvent.stop);
-
-    // Alternar abrir/fechar a clicar no ícone
-    L.DomEvent.on(link, 'click', () => {
-      if (container.classList.contains('leaflet-control-layers-expanded')) {
-        this.collapse();
-      } else {
-        this.expand();
+    L.control.locate({
+      position: 'topleft',
+      flyTo: true,
+      keepCurrentZoomLevel: false,
+      initialZoomLevel: 14,
+      locateOptions: {
+        enableHighAccuracy: true,
+        maxZoom: 16
       }
+    }).addTo(map);
+
+    /* Mapas base */
+    const baseOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
     });
 
-    return container;
-  }
-});
-
-// Modo escuro
-
-
-// Controlos separados (clicar para abrir)
-const baseControl = new ClickLayersControl(baseLayers, null, {
-  collapsed: true,
-  position: 'topright'
-}).addTo(map);
-
-const overlayControl = new ClickLayersControl(null, overlays, {
-  collapsed: true,
-  position: 'topright'
-}).addTo(map);
-
-
-// Overlays aberto por defeito, mas fechável manualmente no ícone
-overlayControl.expand();
-baseControl.collapse();
-
-function makeLayersControlClickOnly(ctrl) {
-  const container = ctrl.getContainer();
-  const toggle = container.querySelector('.leaflet-control-layers-toggle');
-
-  // não deixar o controlo mexer no mapa
-  L.DomEvent.disableClickPropagation(container);
-  L.DomEvent.disableScrollPropagation(container);
-
-  // 1) Mata hover (captura antes do Leaflet)
-  const killHover = (e) => {
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-  };
-  ['mouseover', 'mouseout', 'mouseenter', 'mouseleave'].forEach(ev => {
-    container.addEventListener(ev, killHover, true); // capture=true
-  });
-
-  // 2) Toggle por clique no ícone (captura para ganhar ao Leaflet)
-  toggle.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation(); // impede o click "expand-only" do Leaflet
-
-    if (container.classList.contains('leaflet-control-layers-expanded')) {
-      ctrl.collapse();
-    } else {
-      ctrl.expand();
-    }
-  }, true); // capture=true
-}
-
-makeLayersControlClickOnly(baseControl);
-makeLayersControlClickOnly(overlayControl);
-
-
-
-// (opcional) classes para poderes estilizar melhor em CSS
-baseControl.getContainer().classList.add('layers-base');
-overlayControl.getContainer().classList.add('layers-overlays');
-
-  // Forçar ordem das camadas (reaplica em toggles)
-  function applyLayerOrder() {
-
- // primeiro o que tem de ficar no fundo
-tracksROMSec.bringToBack();
-
-  // depois o resto por cima
-    
-  tracksROMMain.bringToFront();
-  tracksNO.bringToFront();  
-  tracksEUR.bringToFront();
-  tracksCEL.bringToFront();
-  tracksMAR.bringToFront();
-  // pontos sempre no topo
-  IGR.bringToFront();
-  }
-  applyLayerOrder();
-map.on('overlayadd overlayremove', () => requestAnimationFrame(applyLayerOrder));
-  // Loader
-  async function loadGeoJSON(url, group, options = {}) {
-    // caminhos relativos (bom para WP e GitHub Pages)
-    const r = await fetch(`./${url}`, { cache: "no-cache" });
-    if (!r.ok) throw new Error(`Falha a carregar ${url}: ${r.status}`);
-    const data = await r.json();
-
-    const layer = L.geoJSON(data, {
-      ...(options.renderer ? {} : { renderer: canvasRenderer }),
-      ...options
+    const baseTerrain = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      maxZoom: 17,
+      attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap (CC-BY-SA)'
     });
 
-    layer.addTo(group);
-    return layer;
-  }
-// Legenda
-const legend = L.control({ position: 'bottomright' });
-legend.onAdd = () => {
-  const div = L.DomUtil.create('div', 'legend');
-  div.innerHTML = `
-    <div><span class="lg pin"></span> Igrexas con axedrezado</div>
-    <div><span class="lg line eur"></span> Camiños oficiais</div>
-    <div><span class="lg line mar"></span> Marítimos</div>
-    <div><span class="lg line cel"></span> Via Céltica</div>
-    <div><span class="lg line no"></span> Non oficiais</div>
-	<div><span class="lg line rom-main"></span> Vias Romanas Principais</div>
-    <div><span class="lg line rom-sec"></span> Vias Romanas Secundarias</div>
-  `;
-  return div;
-};
-legend.addTo(map);
+    const baseHillshadeEsri = L.tileLayer(
+      'https://services.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}',
+      { maxZoom: 20, attribution: 'Tiles &copy; Esri' }
+    );
 
-  // Pin icon (SVG) com scale real
-  function pinIcon(color = "#7a1fa2", scale = 1) {
-    const w = 30 * scale;
-    const h = 42 * scale;
+    const baseSatellite = L.tileLayer(
+      'https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      { maxZoom: 19, opacity: 0.9, attribution: 'Tiles &copy; Esri' }
+    );
 
-    const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 30 42">
-        <path d="M15 0C7.3 0 1 6.1 1 13.7c0 10.3 14 28.3 14 28.3s14-18 14-28.3C29 6.1 22.7 0 15 0z"
-              fill="${color}" />
-        <circle cx="15" cy="14" r="5.5" fill="white"/>
-      </svg>`;
+    baseSatellite.addTo(map);
 
-    return L.divIcon({
-      className: '',
-      html: svg,
-      iconSize: [w, h],
-      iconAnchor: [w / 2, h],
-      popupAnchor: [0, -h * 0.9]
-    });
-  }
+    const canvasRenderer = L.canvas({ padding: 0.5 });
+    const svgRenderer = L.svg();
 
-  // Popups no ponto clicado (para linhas)
-  function linePopupHandler(feature, layer) {
-    const nome =
-      feature?.properties?.name ??
-      feature?.properties?.Name ??
-      feature?.properties?.nome ??
-      "Track";
+    /* Camadas */
+    const tracksEUR = L.featureGroup().addTo(map);
+    const tracksCEL = L.featureGroup().addTo(map);
+    const tracksNO = L.featureGroup().addTo(map);
+    const tracksMAR = L.featureGroup().addTo(map);
+    const tracksROMMain = L.featureGroup().addTo(map);
+    const tracksROMSec = L.featureGroup().addTo(map);
+    const IGR = L.featureGroup().addTo(map);
+    const PORTOS = L.featureGroup().addTo(map);
 
-    layer.on('click', (e) => {
-      L.popup()
-        .setLatLng(e.latlng)
-        .setContent(nome)
-        .openOn(map);
-    });
-  }
-// Loading (antes do async)
-const loading = L.control({ position: 'bottomleft' });
-loading.onAdd = () => {
-  const d = L.DomUtil.create('div', 'loading');
-  d.textContent = 'A carregar…';
-  return d;
-};
-loading.addTo(map);
-
-(async () => {
-  try {
-    // Non oficiais
-    const noOpts = {
-      style: () => ({ color: "DodgerBlue", weight: 3, opacity: 0.9 }),
-      onEachFeature: linePopupHandler
+    const baseLayers = {
+      "Satélite": baseSatellite,
+      "OpenStreetMap": baseOSM,
+      "Sombreado": baseHillshadeEsri,
+      "Terreno": baseTerrain
     };
-    await loadGeoJSON('nao-oficiais.geojson', tracksNO, noOpts);
-    await loadGeoJSON('var-inverno.geojson', tracksNO, noOpts);
-	await loadGeoJSON('nao-oficiais-2.geojson', tracksNO, noOpts);
 
+    const overlays = {
+      "Igrexas con axedrezado": IGR,
+      "Portos xacobeos": PORTOS,
+      "Camiños oficiais": tracksEUR,
+      "Camiños marítimos": tracksMAR,
+      "Via Céltica": tracksCEL,
+      "Non oficiais": tracksNO,
+      "Vias Romanas Principais": tracksROMMain,
+      "Vias Romanas Secundarias": tracksROMSec
+    };
 
-    // Oficiais Europa (dois ficheiros na mesma camada)
-    const eurStyle = { style: () => ({ color: "#FF7800", weight: 3, opacity: 0.9 }) };
-    await Promise.all([
-      loadGeoJSON('merged-EUR_simplified.geojson', tracksEUR, eurStyle),
-      loadGeoJSON('manzanal.geojson', tracksEUR, eurStyle),
-    ]);
+    /* Controlo de camadas aberto apenas por clique */
+    const ClickLayersControl = L.Control.Layers.extend({
+      onAdd: function (mapInstance) {
+        const container = L.Control.Layers.prototype.onAdd.call(this, mapInstance);
 
-    // Via Céltica
-    await loadGeoJSON('via-celtica.geojson', tracksCEL, {
-      style: () => ({ color: "#ee282f", weight: 3, opacity: 0.9 }),
-      onEachFeature: linePopupHandler
-    });
+        L.DomEvent.off(container, 'mouseover', this.expand, this);
+        L.DomEvent.off(container, 'mouseout', this.collapse, this);
 
-    // Marítimos (SVG para garantir tracejado)
-    await loadGeoJSON('merged-MAR.geojson', tracksMAR, {
-      renderer: svgRenderer,
-      style: () => ({ color: "#FF7800", weight: 3, opacity: 0.9, dashArray: "8 6" }),
-      onEachFeature: linePopupHandler
-    });
+        const link = this._layersLink;
+        L.DomEvent.on(link, 'click', L.DomEvent.stop);
+        L.DomEvent.on(link, 'click', () => {
+          if (container.classList.contains('leaflet-control-layers-expanded')) {
+            this.collapse();
+          } else {
+            this.expand();
+          }
+        });
 
-    // Igrejas (pontos)
-//    await loadGeoJSON('igrejas.geojson', IGR, {
-//      pointToLayer: (feature, latlng) => L.marker(latlng, { icon: pinIcon("#7a1fa2", 0.7) }),
-//      onEachFeature: (feature, layer) => {
-//        const nome = feature?.properties?.name ?? feature?.properties?.Name ?? "Igreja";
-//        layer.bindPopup(nome);
-//      }
-//    });
-    await loadGeoJSON('igrejas-4.geojson', IGR, {
-      pointToLayer: (feature, latlng) => L.marker(latlng, { icon: pinIcon("#7a1fa2", 0.7) }),
-      onEachFeature: (feature, layer) => {
-        const nome = feature?.properties?.name ?? feature?.properties?.Name ?? "Igreja";
-        layer.bindPopup(nome);
+        return container;
       }
     });
-	
-	// Vias Romanas
-// Vias Romanas Principais
-await loadGeoJSON('itiner-e.geojson', tracksROMMain, {
-  filter: (feature) => feature?.properties?.type === "Main Road",
-  style: () => ({
-    color: "#ffef15",   // amarelo
-    weight: 3,
-    opacity: 0.9
-  }),
-  onEachFeature: (feature, layer) => {
-    const nome =
-      feature?.properties?.name ??
-      feature?.properties?.Name ??
-      feature?.properties?.nome ??
-      "Via romana principal";
 
-    layer.on('click', (e) => {
-      L.popup()
-        .setLatLng(e.latlng)
-        .setContent(`<strong>${nome}</strong><br>Main Road`)
-        .openOn(map);
-    });
-  }
-});
+    const baseControl = new ClickLayersControl(baseLayers, null, {
+      collapsed: true,
+      position: 'topright'
+    }).addTo(map);
 
-// Vias Romanas Secundarias
-await loadGeoJSON('itiner-e.geojson', tracksROMSec, {
-  filter: (feature) => feature?.properties?.type === "Secondary Road",
-  style: () => ({
-    color: "#10b981",   // verde
-    weight: 2,
-    opacity: 0.9,
-    dashArray: "6 4"
-  }),
-  onEachFeature: (feature, layer) => {
-    const nome =
-      feature?.properties?.name ??
-      feature?.properties?.Name ??
-      feature?.properties?.nome ??
-      "Via romana secundaria";
+    const overlayControl = new ClickLayersControl(null, overlays, {
+      collapsed: true,
+      position: 'topright'
+    }).addTo(map);
 
-    layer.on('click', (e) => {
-      L.popup()
-        .setLatLng(e.latlng)
-        .setContent(`<strong>${nome}</strong><br>Secondary Road`)
-        .openOn(map);
-    });
-  }
-});
+    overlayControl.expand();
+    baseControl.collapse();
+
+    function makeLayersControlClickOnly(ctrl) {
+      const container = ctrl.getContainer();
+      const toggle = container.querySelector('.leaflet-control-layers-toggle');
+
+      L.DomEvent.disableClickPropagation(container);
+      L.DomEvent.disableScrollPropagation(container);
+
+      const killHover = (event) => {
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+      };
+
+      ['mouseover', 'mouseout', 'mouseenter', 'mouseleave'].forEach((eventName) => {
+        container.addEventListener(eventName, killHover, true);
+      });
+
+      toggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        if (container.classList.contains('leaflet-control-layers-expanded')) {
+          ctrl.collapse();
+        } else {
+          ctrl.expand();
+        }
+      }, true);
+    }
+
+    makeLayersControlClickOnly(baseControl);
+    makeLayersControlClickOnly(overlayControl);
+
+    baseControl.getContainer().classList.add('layers-base');
+    overlayControl.getContainer().classList.add('layers-overlays');
+
+    function applyLayerOrder() {
+      tracksROMSec.bringToBack();
+      tracksROMMain.bringToFront();
+      tracksNO.bringToFront();
+      tracksEUR.bringToFront();
+      tracksCEL.bringToFront();
+      tracksMAR.bringToFront();
+      IGR.bringToFront();
+      PORTOS.bringToFront();
+    }
+
     applyLayerOrder();
+    map.on('overlayadd overlayremove', () => requestAnimationFrame(applyLayerOrder));
 
-    // Se estiver embutido (WP tabs/iframes/containers), isto evita mapa “cortado”
-    setTimeout(() => map.invalidateSize(), 200);
+    async function loadGeoJSON(url, group, options = {}) {
+      const response = await fetch(`./${url}`, { cache: 'no-cache' });
+      if (!response.ok) throw new Error(`Falha a carregar ${url}: ${response.status}`);
 
-  } catch (e) {
-    console.error(e);
-    alert(e.message);
-  } finally {
-    loading.remove();   // <- aqui
-  }
-})();
+      const data = await response.json();
+      const layer = L.geoJSON(data, {
+        ...(options.renderer ? {} : { renderer: canvasRenderer }),
+        ...options
+      });
 
-</script>
+      layer.addTo(group);
+      return layer;
+    }
+
+    function anchorSvg(size = 28) {
+      return `
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="${size}" height="${size}" viewBox="0 0 28 28"
+             aria-hidden="true">
+          <circle cx="14" cy="14" r="12.5"
+                  fill="#267C8A" stroke="#174A52" stroke-width="2"/>
+          <g fill="none" stroke="#FFFFFF" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="14" cy="8" r="2.5"/>
+            <path d="M14 10.5v10"/>
+            <path d="M9.5 13h9"/>
+            <path d="M7.5 17c1 3 3.2 4.5 6.5 4.5s5.5-1.5 6.5-4.5"/>
+            <path d="M7.5 17 6 18"/>
+            <path d="m20.5 17 1.5 1"/>
+          </g>
+        </svg>`;
+    }
+
+    function pinIcon(color = '#7a1fa2', scale = 1) {
+      const width = 30 * scale;
+      const height = 42 * scale;
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="${width}" height="${height}" viewBox="0 0 30 42">
+          <path d="M15 0C7.3 0 1 6.1 1 13.7c0 10.3 14 28.3 14 28.3s14-18 14-28.3C29 6.1 22.7 0 15 0z"
+                fill="${color}"/>
+          <circle cx="15" cy="14" r="5.5" fill="white"/>
+        </svg>`;
+
+      return L.divIcon({
+        className: '',
+        html: svg,
+        iconSize: [width, height],
+        iconAnchor: [width / 2, height],
+        popupAnchor: [0, -height * 0.9]
+      });
+    }
+
+    function portIcon(scale = 1) {
+      const size = 28 * scale;
+      return L.divIcon({
+        className: 'port-marker',
+        html: anchorSvg(size),
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+        popupAnchor: [0, -(size / 2)]
+      });
+    }
+
+    function linePopupHandler(feature, layer) {
+      const name =
+        feature?.properties?.name ??
+        feature?.properties?.Name ??
+        feature?.properties?.nome ??
+        'Track';
+
+      layer.on('click', (event) => {
+        L.popup()
+          .setLatLng(event.latlng)
+          .setContent(name)
+          .openOn(map);
+      });
+    }
+
+    /* Legenda */
+    const legend = L.control({ position: 'bottomright' });
+    legend.onAdd = () => {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = `
+        <div><span class="lg pin"></span> Igrexas con axedrezado</div>
+        <div><span class="lg">${anchorSvg(18)}</span> Portos xacobeos</div>
+        <div><span class="lg line eur"></span> Camiños oficiais</div>
+        <div><span class="lg line mar"></span> Marítimos</div>
+        <div><span class="lg line cel"></span> Via Céltica</div>
+        <div><span class="lg line no"></span> Non oficiais</div>
+        <div><span class="lg line rom-main"></span> Vias Romanas Principais</div>
+        <div><span class="lg line rom-sec"></span> Vias Romanas Secundarias</div>`;
+      return div;
+    };
+    legend.addTo(map);
+
+    const loading = L.control({ position: 'bottomleft' });
+    loading.onAdd = () => {
+      const div = L.DomUtil.create('div', 'loading');
+      div.textContent = 'A carregar…';
+      return div;
+    };
+    loading.addTo(map);
+
+    (async () => {
+      try {
+        /* Percursos não oficiais: antigos e novos */
+        const nonOfficialOptions = {
+          style: () => ({ color: 'DodgerBlue', weight: 3, opacity: 0.9 }),
+          onEachFeature: linePopupHandler
+        };
+
+        const nonOfficialFiles = [
+          'nao-oficiais.geojson',
+          'var-inverno.geojson',
+          'nao-oficiais-2.geojson',
+          'augustine.geojson',
+          'camino-santuarios.geojson',
+          'canterbury_becket.geojson',
+          'conexion_urt.geojson',
+          'falifos.geojson',
+          'lebaniego-completo.geojson',
+          'lourdes_jaca.geojson',
+          'lourdes_jaca_por_gavarnie.geojson',
+          'sobrarbe.geojson',
+          'the_old_way.geojson'
+        ];
+
+        await Promise.all(
+          nonOfficialFiles.map((file) => loadGeoJSON(file, tracksNO, nonOfficialOptions))
+        );
+
+        /* Caminhos oficiais da Europa */
+        const europeanOptions = {
+          style: () => ({ color: '#FF7800', weight: 3, opacity: 0.9 })
+        };
+        await Promise.all([
+          loadGeoJSON('merged-EUR_simplified.geojson', tracksEUR, europeanOptions),
+          loadGeoJSON('manzanal.geojson', tracksEUR, europeanOptions)
+        ]);
+
+        /* Via Céltica */
+        await loadGeoJSON('via-celtica.geojson', tracksCEL, {
+          style: () => ({ color: '#ee282f', weight: 3, opacity: 0.9 }),
+          onEachFeature: linePopupHandler
+        });
+
+        /* Caminhos marítimos */
+        await loadGeoJSON('merged-MAR.geojson', tracksMAR, {
+          renderer: svgRenderer,
+          style: () => ({
+            color: '#FF7800',
+            weight: 3,
+            opacity: 0.9,
+            dashArray: '8 6'
+          }),
+          onEachFeature: linePopupHandler
+        });
+
+        /* Igrejas */
+        await loadGeoJSON('igrejas-4.geojson', IGR, {
+          pointToLayer: (feature, latlng) =>
+            L.marker(latlng, { icon: pinIcon('#7a1fa2', 0.7) }),
+          onEachFeature: (feature, layer) => {
+            const name =
+              feature?.properties?.name ??
+              feature?.properties?.Name ??
+              'Igreja';
+            layer.bindPopup(name);
+          }
+        });
+
+        /* Portos xacobeos */
+        await loadGeoJSON('portos-xacobeos.geojson', PORTOS, {
+          pointToLayer: (feature, latlng) =>
+            L.marker(latlng, { icon: portIcon(1) }),
+          onEachFeature: (feature, layer) => {
+            const name =
+              feature?.properties?.Name ??
+              feature?.properties?.name ??
+              feature?.properties?.nome ??
+              'Porto xacobeo';
+            layer.bindPopup(name);
+            layer.bindTooltip(name, {
+              direction: 'top',
+              offset: [0, -14]
+            });
+          }
+        });
+
+        /* Vias romanas principais */
+        await loadGeoJSON('itiner-e.geojson', tracksROMMain, {
+          filter: (feature) => feature?.properties?.type === 'Main Road',
+          style: () => ({ color: '#ffef15', weight: 3, opacity: 0.9 }),
+          onEachFeature: (feature, layer) => {
+            const name =
+              feature?.properties?.name ??
+              feature?.properties?.Name ??
+              feature?.properties?.nome ??
+              'Via romana principal';
+
+            layer.on('click', (event) => {
+              L.popup()
+                .setLatLng(event.latlng)
+                .setContent(`<strong>${name}</strong><br>Main Road`)
+                .openOn(map);
+            });
+          }
+        });
+
+        /* Vias romanas secundárias */
+        await loadGeoJSON('itiner-e.geojson', tracksROMSec, {
+          filter: (feature) => feature?.properties?.type !== 'Main Road',
+          style: () => ({
+            color: '#10b981',
+            weight: 3,
+            opacity: 0.9,
+            dashArray: '8 6'
+          }),
+          onEachFeature: linePopupHandler
+        });
+
+        applyLayerOrder();
+        setTimeout(() => map.invalidateSize(), 200);
+      } catch (error) {
+        console.error(error);
+        alert(error.message);
+      } finally {
+        loading.remove();
+      }
+    })();
+  </script>
 </body>
 </html>
