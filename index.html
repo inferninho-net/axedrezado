@@ -513,6 +513,13 @@
         feature?.properties?.nome ??
         'Track';
 
+      layer.bindTooltip(name, {
+        sticky: true,
+        direction: 'top',
+        offset: [0, -6],
+        opacity: 0.95
+      });
+
       layer.on('click', (event) => {
         L.popup()
           .setLatLng(event.latlng)
@@ -576,7 +583,8 @@
 
         /* Caminhos oficiais da Europa */
         const europeanOptions = {
-          style: () => ({ color: '#FF7800', weight: 3, opacity: 0.9 })
+          style: () => ({ color: '#FF7800', weight: 3, opacity: 0.9 }),
+          onEachFeature: linePopupHandler
         };
         await Promise.all([
           loadGeoJSON('merged-EUR_simplified.geojson', tracksEUR, europeanOptions),
@@ -611,6 +619,11 @@
               feature?.properties?.Name ??
               'Igreja';
             layer.bindPopup(name);
+            layer.bindTooltip(name, {
+              direction: 'top',
+              offset: [0, -30],
+              opacity: 0.95
+            });
           }
         });
 
@@ -642,6 +655,13 @@
               feature?.properties?.Name ??
               feature?.properties?.nome ??
               'Via romana principal';
+
+            layer.bindTooltip(name, {
+              sticky: true,
+              direction: 'top',
+              offset: [0, -6],
+              opacity: 0.95
+            });
 
             layer.on('click', (event) => {
               L.popup()
